@@ -16,8 +16,9 @@ Instruction	Assembly	Description					Operands
 0D		PUSHA		Push values of all registers onto stack		None
 0E		POPA		Pop values of registers off stack		None
 0F		JMP		Jump to location				DWORD [Location]
-10		DJMP		Dynamic jump to location			None (jump location in pr1)
+10		CMP		Compare values			
 11		RET			Return to previous code				None (ret location in bp)
+12		JMPC		Conditional jump
 
 
 

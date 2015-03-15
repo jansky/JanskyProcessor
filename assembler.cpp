@@ -224,6 +224,21 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			
 		}
 	}
+	else if(line_tokens[0] == "cmp")
+	{
+		if(line_tokens.size() < 5)
+			assembler_print_error_and_exit("Operation 'cmp' requires 5 operands.", e, 1);
+		else
+		{
+			bytes.push_back(0x10);
+			
+			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
+			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e);
+			
+			bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
+			bytes.insert(bytes.end(), loc2_bytes.begin(), loc2_bytes.end());
+		}
+	}
 	//Non instruction
 	else if(line_tokens[0] == "lbl")
 	{
@@ -251,6 +266,45 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "ret")
 	{
 		bytes.push_back(0x11);
+	}
+	else if(line_tokens[0] == "jmpc")
+	{
+		if(line_tokens.size() < 4)
+			assembler_print_error_and_exit("Operation 'jmpc' requires 3 operands.", e, 1);
+		else
+		{
+			bytes.push_back(0x12);
+			
+			if(line_tokens[1] == "eq")
+				bytes.push_back(0x01);
+			else if(line_tokens[1] == "ne")
+				bytes.push_back(0x00);
+			else if(line_tokens[1] == "gt")
+				bytes.push_back(0x02);
+			else if(line_tokens[1] == "lt")
+				bytes.push_back(0x03);
+			else
+				assembler_print_error_and_exit("\'" + line_tokens[1] + "\' is an unrecognized condition.", e, 1);
+		
+			
+			if(line_tokens[2] == "l")
+			{
+				jumps[(uint32_t)bytes.size() + offset] = line_tokens[3];
+				
+				bytes.push_back(0x02);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+			}
+			else
+			{
+				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[2], line_tokens[3], e);
+			
+				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
+			}
+			
+		}
 	}
 	else if(line_tokens[0] == "tst")
 	{

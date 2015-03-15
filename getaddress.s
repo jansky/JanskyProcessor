@@ -5,7 +5,7 @@ put r ar4 0xFF
 hlt
 lbl test
 tst
-;This is the equivalent of RET
+;This is the equivalent of ret
 pop r ar3
 jmp r ar3
 

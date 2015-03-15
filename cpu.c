@@ -641,7 +641,7 @@ CPURESULT *cpu_exec_instruction(CPU *cpu, RAMUNIT *ram)
 			if(!stack_push(cpu, ram, curr_address + 5))
 				return cpu_result_create(CPURESULT_STACKFLOWERROR, curr_address, instruction);
 			
-			DWORD loc_id = get_byte_at_ram_address(ram, curr_address);
+			BYTE loc_id = get_byte_at_ram_address(ram, curr_address);
 			curr_address++;
 			DWORD location = get_dword_at_ram_address(ram, curr_address);
 			
@@ -654,6 +654,78 @@ CPURESULT *cpu_exec_instruction(CPU *cpu, RAMUNIT *ram)
 			
 			break;
 		}
+		//CMP
+		case 0x10:
+		{
+		
+			if(curr_address + 10 >= ram->bytesize)
+			{
+				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);
+			}
+			
+			BYTE loc_id_1;
+			DWORD location_1;
+			
+			BYTE loc_id_2;
+			DWORD location_2;
+			
+			DWORD value1;
+			DWORD value2;
+			
+			curr_address++;
+			
+			loc_id_1 = get_byte_at_ram_address(ram, curr_address);
+			
+			curr_address++;
+			location_1 = get_dword_at_ram_address(ram, curr_address);
+			
+			curr_address += 4;
+			
+			loc_id_2 = get_byte_at_ram_address(ram, curr_address);
+			
+			curr_address++;
+			
+			location_2 = get_dword_at_ram_address(ram, curr_address);
+			
+			curr_address += 4;
+			
+			//Now we read the values
+			
+			value1 = get_value(cpu, ram, loc_id_1, location_1);
+			
+			if(emu_error != 0)
+				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);
+				
+			value2 = get_value(cpu, ram, loc_id_2, location_2);
+			
+			if(emu_error != 0)
+				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);
+				
+		    
+		    if(value1 == value2)
+		    {
+				cpu->flr1 = 0x01;
+			}
+			else
+			{
+				cpu->flr1 = 0x00;
+				
+				if(value1 > value2)
+				{
+					cpu->flr1 = 0x02;
+				}
+				
+				if(value1 < value2)
+				{
+					cpu->flr1 = 0x03;
+				}
+			}
+			
+							
+			
+			
+			break;
+		}
 		//RET
 		case 0x11:
 		{
@@ -663,6 +735,50 @@ CPURESULT *cpu_exec_instruction(CPU *cpu, RAMUNIT *ram)
 				return cpu_result_create(CPURESULT_STACKFLOWERROR, curr_address, instruction);
 				
 			curr_address = ret_address;
+			
+			break;
+		}
+		//JMPC
+		case 0x12:
+		{
+			if(curr_address + 6 >= ram->bytesize)
+			{
+				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);
+			}
+			
+			
+			curr_address++;
+			DWORD ret_address = curr_address + 6;
+			
+			
+			
+			BYTE condition = get_byte_at_ram_address(ram, curr_address);
+			curr_address++;
+			BYTE loc_id = get_byte_at_ram_address(ram, curr_address);
+			curr_address++;
+			DWORD location = get_dword_at_ram_address(ram, curr_address);
+			
+			DWORD value = get_value(cpu, ram, loc_id, location);
+			
+			if(emu_error != 0)
+				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);
+			
+			bool condition_met = false;
+			
+			if(condition == cpu->flr1)
+				condition_met = true;
+			
+			if(condition == 0x00 && cpu->flr1 != 0)
+				condition_met = true;
+				
+				
+			if(condition_met)
+			{
+				//Push RET pointer onto stack
+				if(!stack_push(cpu, ram, ret_address))
+					return cpu_result_create(CPURESULT_STACKFLOWERROR, curr_address, instruction);
+				curr_address = value;
+			}
 			
 			break;
 		}
