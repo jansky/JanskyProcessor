@@ -629,7 +629,7 @@ CPURESULT *cpu_exec_instruction(CPU *cpu, RAMUNIT *ram)
 		//JMP
 		case 0x0F:
 		{
-			if(curr_address + 4 >= ram->bytesize)
+			if(curr_address + 5 >= ram->bytesize)
 			{
 				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);
 			}
@@ -638,12 +638,19 @@ CPURESULT *cpu_exec_instruction(CPU *cpu, RAMUNIT *ram)
 			curr_address++;
 			
 			//Push RET pointer onto stack
-			if(!stack_push(cpu, ram, curr_address + 4))
+			if(!stack_push(cpu, ram, curr_address + 5))
 				return cpu_result_create(CPURESULT_STACKFLOWERROR, curr_address, instruction);
 			
+			DWORD loc_id = get_byte_at_ram_address(ram, curr_address);
+			curr_address++;
 			DWORD location = get_dword_at_ram_address(ram, curr_address);
 			
-			curr_address = location;
+			DWORD value = get_value(cpu, ram, loc_id, location);
+			
+			if(emu_error != 0)
+				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);
+			
+			curr_address = value;
 			
 			break;
 		}

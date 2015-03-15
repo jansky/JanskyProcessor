@@ -1,12 +1,11 @@
 put m 0xFF 600
 put r ar2 56
 jmp l test
+put r ar4 0xFF
 hlt
 lbl test
 tst
-jmp l getaddress
-ret
-lbl getaddress
-pop r ar1
-push r ar1
-ret
+;This is the equivalent of RET
+pop r ar3
+jmp r ar3
+

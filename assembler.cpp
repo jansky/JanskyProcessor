@@ -204,16 +204,12 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x0F);
 		
-			if(line_tokens[1] == "a")
-			{
-				std::vector<Byte> locbytes = assembler_uint32_string_to_byte_array(line_tokens[2], e);
 			
-				bytes.insert(bytes.end(), locbytes.begin(), locbytes.end());
-			}
-			else if(line_tokens[1] == "l")
+			if(line_tokens[1] == "l")
 			{
 				jumps[(uint32_t)bytes.size() + offset] = line_tokens[2];
 				
+				bytes.push_back(0x02);
 				bytes.push_back(0x00);
 				bytes.push_back(0x00);
 				bytes.push_back(0x00);
@@ -221,7 +217,9 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			}
 			else
 			{
-				assembler_print_error_and_exit("\'" + line_tokens[1] + "\' is not a valid jump type.", e, 1);
+				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
+			
+				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
 			}
 			
 		}
@@ -239,6 +237,8 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			*reinterpret_cast<uint32_t*>(b) = (uint32_t)bytes.size() + offset;
 			 
 			std::vector<Byte> lblbytes;
+			
+			lblbytes.push_back(0x02);
 			
 			for(int i = 0; i < 4; i++)
 			{
