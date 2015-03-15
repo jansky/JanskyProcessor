@@ -1,0 +1,25 @@
+Allocated 10485760 bytes of RAM.
+Test.
+CPU Halted
+
+-----
+Register Dump
+
+ar1 - fe
+ar2 - 0
+ar3 - 0
+ar4 - 0
+ar5 - 0
+fr1 - 0.000000
+fr2 - 0.000000
+fr3 - 0.000000
+fr4 - 0.000000
+fr5 - 0.000000
+cr1 - 0
+pr1 - 0
+pr2 - 0
+fpr1 - 0.000000
+fpr2 - 0.000000
+flr1 - 0
+CPU last instruction: 0
+CPU last instruction result: 0
