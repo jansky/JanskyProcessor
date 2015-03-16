@@ -83,7 +83,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "put")
 	{
 		if(line_tokens.size() < 4)
-			assembler_print_error_and_exit("Operation 'put' requires 4 operands.", e, 1);
+			assembler_print_error_and_exit("Operation 'put' requires 3 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x05);
@@ -98,7 +98,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "cpy")
 	{
 		if(line_tokens.size() < 5)
-			assembler_print_error_and_exit("Operation 'cpy' requires 5 operands.", e, 1);
+			assembler_print_error_and_exit("Operation 'cpy' requires 4 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x06);
@@ -113,7 +113,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "add")
 	{
 		if(line_tokens.size() < 5)
-			assembler_print_error_and_exit("Operation 'add' requires 5 operands.", e, 1);
+			assembler_print_error_and_exit("Operation 'add' requires 4 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x07);
@@ -128,7 +128,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "sub")
 	{
 		if(line_tokens.size() < 5)
-			assembler_print_error_and_exit("Operation 'sub' requires 5 operands.", e, 1);
+			assembler_print_error_and_exit("Operation 'sub' requires 4 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x08);
@@ -143,7 +143,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "mul")
 	{
 		if(line_tokens.size() < 5)
-			assembler_print_error_and_exit("Operation 'mul' requires 5 operands.", e, 1);
+			assembler_print_error_and_exit("Operation 'mul' requires 4 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x09);
@@ -158,7 +158,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "div")
 	{
 		if(line_tokens.size() < 5)
-			assembler_print_error_and_exit("Operation 'div' requires 5 operands.", e, 1);
+			assembler_print_error_and_exit("Operation 'div' requires 4 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x0A);
@@ -173,7 +173,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "push")
 	{
 		if(line_tokens.size() < 3)
-			assembler_print_error_and_exit("Operaiton 'push' requires two operands.", e, 1);
+			assembler_print_error_and_exit("Operaiton 'push' requires 2 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x0B);
@@ -186,7 +186,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "pop")
 	{
 		if(line_tokens.size() < 3)
-			assembler_print_error_and_exit("Operaiton 'pop' requires two operands.", e, 1);
+			assembler_print_error_and_exit("Operaiton 'pop' requires 2 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x0C);
@@ -227,7 +227,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else if(line_tokens[0] == "cmp")
 	{
 		if(line_tokens.size() < 5)
-			assembler_print_error_and_exit("Operation 'cmp' requires 5 operands.", e, 1);
+			assembler_print_error_and_exit("Operation 'cmp' requires 4 operands.", e, 1);
 		else
 		{
 			bytes.push_back(0x10);
@@ -300,6 +300,107 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			else
 			{
 				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[2], line_tokens[3], e);
+			
+				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
+			}
+			
+		}
+	}
+	else if(line_tokens[0] == "jmpr")
+	{
+		if(line_tokens.size() < 5)
+			assembler_print_error_and_exit("Operation 'jmpr' requires 4 operands.", e, 1);
+		else
+		{
+			bytes.push_back(0x13);
+		
+			
+			if(line_tokens[1] == "l")
+			{
+				jumps[(uint32_t)bytes.size() + offset] = line_tokens[2];
+				
+				bytes.push_back(0x02);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+			}
+			else
+			{
+				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
+			
+				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
+			}
+			
+			if(line_tokens[3] == "l")
+			{
+				jumps[(uint32_t)bytes.size() + offset] = line_tokens[4];
+				
+				bytes.push_back(0x02);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+			}
+			else
+			{
+				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e);
+			
+				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
+			}
+			
+		}
+	}
+	else if(line_tokens[0] == "jmprc")
+	{
+		if(line_tokens.size() < 6)
+			assembler_print_error_and_exit("Operation 'jmprc' requires 5 operands.", e, 1);
+		else
+		{
+			bytes.push_back(0x14);
+			
+			if(line_tokens[1] == "eq")
+				bytes.push_back(0x01);
+			else if(line_tokens[1] == "ne")
+				bytes.push_back(0x00);
+			else if(line_tokens[1] == "gt")
+				bytes.push_back(0x02);
+			else if(line_tokens[1] == "lt")
+				bytes.push_back(0x03);
+			else
+				assembler_print_error_and_exit("\'" + line_tokens[1] + "\' is an unrecognized condition.", e, 1);
+		
+			
+			if(line_tokens[2] == "l")
+			{
+				jumps[(uint32_t)bytes.size() + offset] = line_tokens[3];
+				
+				bytes.push_back(0x02);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+			}
+			else
+			{
+				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[2], line_tokens[3], e);
+			
+				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
+			}
+			
+			if(line_tokens[4] == "l")
+			{
+				jumps[(uint32_t)bytes.size() + offset] = line_tokens[5];
+				
+				bytes.push_back(0x02);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+			}
+			else
+			{
+				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[4], line_tokens[5], e);
 			
 				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
 			}

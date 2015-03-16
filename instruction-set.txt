@@ -19,6 +19,8 @@ Instruction	Assembly	Description					Operands
 10		CMP		Compare values			
 11		RET			Return to previous code				None (ret location in bp)
 12		JMPC		Conditional jump
+13		JMPR		Jump and set RET value
+14 		JMPRC		Conditional jump and set RET value
 
 
 
