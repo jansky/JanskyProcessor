@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef uint8_t Byte;
 
@@ -608,12 +609,22 @@ std::vector<Byte> assembler_label_postprocessor(std::vector<Byte> bytes, std::ma
 
 int main(int argc, char **argv)
 {
+	if(argc  > 0 && strcmp(argv[1], "-v") == 0)
+	{
+			
+		printf("Assembler\n\nCopyright (c) Ian Duncan 2015\n\nLicensed under the MIT License\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n");
+		return 0;
+	}
+	
 	if(argc < 3)
 	{
 		std::cout << "Error: No output and or input files specified." << std::endl;
 		std::cout << "Info: Run assembler as follows: " << argv[0] << " [input file] [ouptut file]" << std::endl;
+		std::cout << "or: " << argv[0] << " -v for version and copyright information" << std::endl;
 		exit(1);
 	}
+	
+	
 	
 	std::string input_file = std::string(argv[1]);
 	

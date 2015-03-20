@@ -38,7 +38,15 @@ int main(int argc, char **argv)
 	{
 		printf("RAM Dump Analyzer\n\n");
 		printf("Usage: %s [RAM Dump file]\n", argv[0]);
+		printf("Usage: %s -v for version and copyright information\n", argv[0]);
 		exit(1);
+	}
+	
+	if(strcmp(argv[1], "-v") == 0)
+	{
+			
+		printf("Memory Analyzer\n\nCopyright (c) Ian Duncan 2015\n\nLicensed under the MIT License\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n");
+		return 0;
 	}
 	
 	RAMUNIT *ram = read_ram_contents_from_file(argv[1]);
