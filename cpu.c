@@ -187,6 +187,12 @@ DWORD get_value(CPU *cpu, RAMUNIT *ram, BYTE loc_id, DWORD location)
 		case 0x02:
 			return location;
 			break;
+		case 0x03:
+			return get_dword_at_ram_address(ram, get_value_from_register(cpu, location));
+			break;
+		case 0x04:
+			return get_dword_at_ram_address(ram, get_dword_at_ram_address(ram, location));
+			break;
 		default:
 			emu_error = EMUERR_OUTOFRANGE;
 			return 0;

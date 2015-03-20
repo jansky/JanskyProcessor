@@ -504,6 +504,47 @@ std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string lo
 		
 		bytes.insert(bytes.end(), intbytes.begin(), intbytes.end());
 	}
+	else if(loc_id == "pr")
+	{
+		bytes.push_back(0x03);
+		
+		if(location == "ar1")
+			bytes.push_back(0x00);
+		else if(location == "ar2")
+			bytes.push_back(0x01);
+		else if(location == "ar3")
+			bytes.push_back(0x02);
+		else if(location == "ar4")
+			bytes.push_back(0x03);
+		else if(location == "ar5")
+			bytes.push_back(0x04);
+		//No FPU yet
+		else if(location == "cr1")
+			bytes.push_back(0x0A);
+		else if(location == "pr1")
+			bytes.push_back(0x0B);
+		else if(location == "pr2")
+			bytes.push_back(0x0C);
+		//No FPU yet
+		else if(location == "flr1")
+			bytes.push_back(0x0F);
+		else
+			assembler_print_error_and_exit("\'" + location + "\' is not a valid register location.", e, 1);
+		
+		bytes.push_back(0x00);
+		bytes.push_back(0x00);
+		bytes.push_back(0x00);
+	}
+	else if(loc_id == "pm")
+	{
+		bytes.push_back(0x04);
+		
+		bytes.push_back(0x03);
+		
+		std::vector<Byte> intbytes = assembler_uint32_string_to_byte_array(location, e);
+		
+		bytes.insert(bytes.end(), intbytes.begin(), intbytes.end());
+	}		
 	else
 	{
 		assembler_print_error_and_exit("\'" + loc_id + "\' is not a valid location type.", e, 1);
