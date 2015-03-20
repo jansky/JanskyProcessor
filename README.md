@@ -2,6 +2,8 @@
 
 This is an emulator, assembler, and memory dump analyzer, as well as a lot of example programs for a virtual computer (i.e. it does not exist). The goal of this project is to help me (and maybe others) understand how low-level programming and operations work without having to deal with the asininity of the x86 architecture and instruction set (please tell me why it's such a pain to go from real to protected mode again?). 
 
+Some .bin files don't have corresponding .s assembly code file because I wrote them in a hex editor before I wrote the assembler. I would *highly* reccomend using the assembler, as it has macros that make your job 1000000 times easier than using a hex editor.
+
 ##How To Use It
 
 First, build everything by running `make`. Ensure you have a *modern* C++ compiler that has C++11 / C++0x support. Mingw doesn't seem to work, as it's g++ does not have support for the `std::stoul` function, needed for the assembler. If someone can fix this, please let me know, but I'm not wasting my time dealing with stupid Windows problems. Your best bet is to use Linux or some other UNIX (or maybe Cygwin). 
