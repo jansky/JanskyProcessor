@@ -36,6 +36,8 @@ to
 uint32_t memsize = size in bytes;
 ```
 
+and
+
 ```
 cpu->sp = 4095;
 cpu->sb = 3895;
