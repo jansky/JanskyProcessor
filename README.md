@@ -6,7 +6,7 @@ Some .bin files don't have corresponding .s assembly code file because I wrote t
 
 ##How To Use It
 
-First, build everything by running `make`. Ensure you have a *modern* C++ compiler that has C++11 / C++0x support. Mingw doesn't seem to work, as it's g++ does not have support for the `std::stoul` function, needed for the assembler. If someone can fix this, please let me know, but I'm not wasting my time dealing with stupid Windows problems. Your best bet is to use Linux or some other UNIX (or maybe Cygwin). 
+First, build everything by running `make`. Ensure you have a *modern* C++ compiler that has C++11 / C++0x support. Mingw doesn't seem to work, as its g++ does not have support for the `std::stoul` function, needed for the assembler. If someone can fix this, please let me know, but I'm not wasting my time dealing with stupid Windows problems. Your best bet is to use Linux or some other UNIX (or maybe Cygwin). 
 
 To run a program for the emulator (which typically ends with a .bin extension), run `./emulator filename.bin'.
 
