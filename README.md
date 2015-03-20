@@ -18,6 +18,8 @@ To run the assembler on an assembly code file (typically ending with a .s extens
 
 I am currently writing documentation for the processor architecture and an assembly guide using Latex.
 
+*!!Please do not refer to the `instruction-set.txt` file, the information in it is outdated!!*
+
 ##Changing Emulator RAM Size
 
 Currently, the size of emulator RAM is hardcoded at 4 KB (4096 bytes). If you want to change this, edit the `main.c` file, changing the following lines.
