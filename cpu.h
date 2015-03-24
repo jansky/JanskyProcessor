@@ -61,6 +61,8 @@ void print_end_dump(CPU *cpu, CPURESULT *result, RAMUNIT *ram);
 bool stack_push(CPU *cpu, RAMUNIT *ram, DWORD value);
 DWORD stack_pop(CPU *cpu, RAMUNIT *ram);
 
+bool do_cpu_interrupt(CPU *cpu, RAMUNIT *ram, BYTE id);
+
 #define CPURESULT_SUCCESS 0x00
 #define CPURESULT_ILLEGALACCESS 0x01
 #define CPURESULT_INSTRUCTIONNOEXIST 0x02

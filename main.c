@@ -22,20 +22,22 @@ int main(int argc, char **argv)
 		
 		
 		
-		//1024 kb memory
+		//10*1024 kb memory
 		//uint32_t memsize = 10485760;
-		uint32_t memsize = 4096;
+		uint32_t memsize = 10485760;
 		
 		
 		RAMUNIT *ram = ram_unit_init(memsize);
 		CPU *cpu = cpu_init();
 		CPURESULT *result;
 		
-		uint32_t address = 0;
+		uint32_t address = 1024;
 		int instructions_executed = 0;
 		
-		cpu->sp = 4095;
-		cpu->sb = 3895;
+		cpu->sp = 10485760;
+		cpu->sb = 10482560;
+		
+		cpu->ip = 1024;
 		
 		
 		
@@ -56,7 +58,7 @@ int main(int argc, char **argv)
 		set_byte_at_ram_address(ram, 7, 0x00);
 		*/
 		
-		load_program_at_address(ram, 0, argv[1]);
+		load_program_at_address(ram, 1024, argv[1]);
 		
 		
 		

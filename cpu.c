@@ -99,7 +99,7 @@ DWORD get_value_from_register(CPU *cpu, DWORD regid)
 							return cpu->sp;
 							break;
 						case 0x08:
-							return cpu->bp;
+							return cpu->sb;
 							break;
 						//FPU not implemented yet
 						case 0x0A:

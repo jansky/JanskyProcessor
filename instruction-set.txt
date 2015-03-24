@@ -21,6 +21,7 @@ Instruction	Assembly	Description					Operands
 12		JMPC		Conditional jump
 13		JMPR		Jump and set RET value
 14 		JMPRC		Conditional jump and set RET value
+15		IRET		Return from interrupt
 
 
 

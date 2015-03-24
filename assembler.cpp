@@ -472,7 +472,14 @@ std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string lo
 			bytes.push_back(0x03);
 		else if(location == "ar5")
 			bytes.push_back(0x04);
-		//No FPU yet
+		else if(location == "ip")
+			bytes.push_back(0x05);
+		else if(location == "bp")
+			bytes.push_back(0x06);
+		else if(location == "sp")
+			bytes.push_back(0x07);
+		else if(location == "sb")
+			bytes.push_back(0x08);
 		else if(location == "cr1")
 			bytes.push_back(0x0A);
 		else if(location == "pr1")
