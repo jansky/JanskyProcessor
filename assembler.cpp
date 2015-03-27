@@ -31,6 +31,7 @@ std::vector<std::string> assembler_parse_line(std::string line);
 ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, ErrorInformation e, uint32_t offset);
 std::vector<Byte> assembler_uint32_string_to_byte_array(std::string num, ErrorInformation e);
 std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string location, ErrorInformation e);
+std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string location, ErrorInformation e, std::map<uint32_t,std::string> jumps, uint32_t address);
 void write_bytes_to_file(std::ofstream output, std::vector<Byte> bytes);
 std::vector<Byte> assembler_label_postprocessor(std::vector<Byte> bytes, std::map<std::string,std::vector<Byte>> labels, std::map<uint32_t,std::string> jumps);
 
@@ -81,6 +82,17 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	{
 		bytes.push_back(0x00);
 	}
+	else if(line_tokens[0] == "int")
+	{
+		if(line_tokens.size() < 2)
+			assembler_print_error_and_exit("Operation 'int' requires 1 operand.", e, 1);
+		else
+		{
+			bytes.push_back(0x03);
+			
+			bytes.push_back(assembler_uint32_string_to_byte_array(line_tokens[1], e)[0]);
+		}
+	}
 	else if(line_tokens[0] == "put")
 	{
 		if(line_tokens.size() < 4)
@@ -104,8 +116,8 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x06);
 			
-			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
-			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e);
+			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e, jumps, (uint32_t)bytes.size()+offset);
+			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e, jumps, (uint32_t)bytes.size()+offset);
 			
 			bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
 			bytes.insert(bytes.end(), loc2_bytes.begin(), loc2_bytes.end());
@@ -119,8 +131,8 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x07);
 			
-			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
-			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e);
+			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e,jumps, (uint32_t)bytes.size()+offset);
+			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e,jumps, (uint32_t)bytes.size()+offset);
 			
 			bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
 			bytes.insert(bytes.end(), loc2_bytes.begin(), loc2_bytes.end());
@@ -134,8 +146,8 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x08);
 			
-			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
-			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e);
+			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e,jumps, (uint32_t)bytes.size()+offset);
+			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e,jumps, (uint32_t)bytes.size()+offset);
 			
 			bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
 			bytes.insert(bytes.end(), loc2_bytes.begin(), loc2_bytes.end());
@@ -149,8 +161,8 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x09);
 			
-			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
-			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e);
+			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e,jumps, (uint32_t)bytes.size()+offset);
+			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e,jumps, (uint32_t)bytes.size()+offset);
 			
 			bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
 			bytes.insert(bytes.end(), loc2_bytes.begin(), loc2_bytes.end());
@@ -164,8 +176,8 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x0A);
 			
-			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
-			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e);
+			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e,jumps, (uint32_t)bytes.size()+offset);
+			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e,jumps, (uint32_t)bytes.size()+offset);
 			
 			bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
 			bytes.insert(bytes.end(), loc2_bytes.begin(), loc2_bytes.end());
@@ -179,7 +191,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x0B);
 			
-			std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
+			std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e,jumps, (uint32_t)bytes.size()+offset);
 			
 			bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
 		}
@@ -192,7 +204,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x0C);
 			
-			std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
+			std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e,jumps, (uint32_t)bytes.size()+offset);
 			
 			bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
 		}
@@ -218,7 +230,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			}
 			else
 			{
-				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
+				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e,jumps, (uint32_t)bytes.size()+offset);
 			
 				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
 			}
@@ -233,8 +245,8 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x10);
 			
-			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
-			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e);
+			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e,jumps, (uint32_t)bytes.size()+offset);
+			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e,jumps, (uint32_t)bytes.size()+offset);
 			
 			bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
 			bytes.insert(bytes.end(), loc2_bytes.begin(), loc2_bytes.end());
@@ -408,6 +420,10 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			
 		}
 	}
+	else if(line_tokens[0] == "iret")
+	{
+		bytes.push_back(0x15);
+	}
 	else if(line_tokens[0] == "tst")
 	{
 		bytes.push_back(0xFF);
@@ -560,6 +576,31 @@ std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string lo
 	
 	return bytes;
 }
+
+std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string location, ErrorInformation e, std::map<uint32_t,std::string> jumps, uint32_t address)
+{
+	
+	if(loc_id == "l")
+	{
+		std::vector<Byte> bytes;
+				jumps[address] = location;
+				
+				bytes.push_back(0x02);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+		
+		return bytes;
+		
+	}
+	else
+	{
+		return assembler_assemble_location(loc_id, location, e);
+	}
+}
+	
+	
 		
 		
 		

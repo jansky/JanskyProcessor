@@ -6,6 +6,7 @@
 
 bool do_cpu_interrupt(CPU *cpu, RAMUNIT *ram, BYTE id)
 {
+	printf("Interrupt 0x%x called.\n", id);
 	emu_error = 0;
 	
 	//Store instruction pointer
@@ -35,8 +36,11 @@ bool do_cpu_interrupt(CPU *cpu, RAMUNIT *ram, BYTE id)
 		}
 		
 		if(cpu->halted && get_byte_at_ram_address(ram, cpu->ip) && emu_error != 0)
+			return false;
+		
+		if(cpu->halted && result == 0)
 			return true;
-		else
+		else if(cpu->halted && result != 0)
 			return false;
 	}
 	

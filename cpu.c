@@ -253,6 +253,22 @@ CPURESULT *cpu_exec_instruction(CPU *cpu, RAMUNIT *ram)
 			printf("CPU Halted\n");
 			cpu->halted = true;
 			break;
+		//INT
+		case 0x03:
+		{
+			printf("Interrupt called.\n");
+			if(curr_address + 1 >= ram->bytesize)
+			{
+				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);
+			}
+			
+			curr_address += 2;
+			cpu->ip = curr_address;
+			
+			return cpu_result_create(get_byte_at_ram_address(ram, curr_address - 1), curr_address, instruction);
+			break;
+		}
+			
 		//PUT
 		case 0x05:
 		

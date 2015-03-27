@@ -69,8 +69,8 @@ int main(int argc, char **argv)
 			
 			if(result->error != CPURESULT_SUCCESS)
 			{
-					//We don't have interrupts, so exit.
-					cpu->halted = true;
+					if(!do_cpu_interrupt(cpu, ram, (BYTE) result->error))
+						cpu->halted = true;
 			}
 			
 			address = result->address;
