@@ -7,7 +7,7 @@ ifeq ($(OS),Windows_NT)
 endif
  
  
-all: emulator assembler memanalyze
+all: emulator assembler memanalyze disassembler
  
 emulator: main.o memory.o cpu.o interrupt.o
 	$(cc) -o $(output) main.o memory.o cpu.o interrupt.o
@@ -30,8 +30,12 @@ assembler: assembler.cpp
 memanalyze: memory.o memanalyze.c
 	$(cc) -o memanalyze memanalyze.c memory.o
 
+disassembler: disassembler.c
+	$(cc) -o disassembler disassembler.c
+
 clean:
 	rm *.o
 	rm $(output)
 	rm assembler
 	rm memanalyze
+	rm disassembler

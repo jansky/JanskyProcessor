@@ -563,7 +563,7 @@ std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string lo
 	{
 		bytes.push_back(0x04);
 		
-		bytes.push_back(0x03);
+		
 		
 		std::vector<Byte> intbytes = assembler_uint32_string_to_byte_array(location, e);
 		
