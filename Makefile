@@ -9,8 +9,8 @@ endif
  
 all: emulator assembler memanalyze disassembler
  
-emulator: main.o memory.o cpu.o interrupt.o
-	$(cc) -o $(output) main.o memory.o cpu.o interrupt.o
+emulator: main.o memory.o cpu.o interrupt.o bios.o screen.o
+	$(cc) -o $(output) main.o memory.o cpu.o interrupt.o bios.o screen.o
 
 main.o: main.c
 	$(cc) -c main.c
@@ -23,6 +23,12 @@ cpu.o: cpu.c
 
 interrupt.o: interrupt.c
 	$(cc) -c interrupt.c
+
+bios.o: bios.c
+	$(cc) -c bios.c
+
+screen.o: screen.c
+	$(cc) -c screen.c
 
 assembler: assembler.cpp
 	g++ -std=c++0x -o assembler assembler.cpp

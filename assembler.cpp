@@ -438,6 +438,39 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			
 		}
 	}
+	else if(line_tokens[0] == "rawb")
+	{
+		if(line_tokens.size() < 2)
+			assembler_print_error_and_exit("Macro 'rawb' requires 1 operand.", e, 1);
+		else
+		{
+			
+			
+			bytes.push_back(assembler_uint32_string_to_byte_array(line_tokens[1], e)[0]);
+		}
+	}
+	else if(line_tokens[0] == "raws")
+	{
+		if(line_tokens.size() < 2)
+			assembler_print_error_and_exit("Macro 'raws' requires 1 operand.", e, 1);
+		else
+		{
+			
+			for(int z = 1; z < line_tokens.size(); z++)
+			{
+				for(int y = 0; y < line_tokens[z].length(); y++)
+				{
+					bytes.push_back((uint8_t)line_tokens[z][y]);
+				}
+
+				if(z != (line_tokens.size() - 1))
+				{
+					bytes.push_back((uint8_t)' ');
+				}
+			}
+
+		}	
+	}
 	else if(line_tokens[0] == "iret")
 	{
 		bytes.push_back(0x15);

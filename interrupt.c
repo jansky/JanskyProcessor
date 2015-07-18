@@ -3,11 +3,18 @@
 #include <stdbool.h>
 #include "cpu.h"
 #include "error.h"
+#include "bios.h"
 
 bool do_cpu_interrupt(CPU *cpu, RAMUNIT *ram, BYTE id)
 {
 	printf("Interrupt 0x%x called.\n", id);
 	emu_error = 0;
+
+	//Check if BIOS interrupt
+	if(id == 0x10)
+	{
+		return do_bios_interrupt(cpu, ram);
+	}
 	
 	//Store instruction pointer
 	cpu->bp = cpu->ip;

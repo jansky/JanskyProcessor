@@ -186,6 +186,23 @@ int main(int argc, char **argv)
 				fprintf(op, "iret");
 				break;
 			}
+			case 0x2e:
+			{
+
+				//Check for .dta mark
+				if(get_byte(ip) == 0x64 && get_byte(ip) == 0x74 && get_byte(ip) == 0x61)
+				{
+					fprintf(op, "; .dta section begins at position 0x%lx.\n", ftell(ip));
+					fclose(ip);
+					fclose(op);
+					exit(0);
+				}
+				else
+				{
+					printf("Error near position 0x%lx: 0x%x is not a valid instruction.\n", ftell(ip), instruction);
+					exit(5);
+				}
+			}
 			case 0xFF:
 			{
 				fprintf(op, "tst");
@@ -193,7 +210,7 @@ int main(int argc, char **argv)
 			}
 			default:
 			{
-				printf("Error near position %ld: 0x%x is not a valid instruction.\n", ftell(ip), instruction);
+				printf("Error near position 0x%lx: 0x%x is not a valid instruction.\n", ftell(ip), instruction);
 				exit(5);
 				break;
 			}
@@ -207,7 +224,7 @@ int main(int argc, char **argv)
 
 	if(!feof(ip))
 	{
-		printf("Error near position %ld: There was an IO error.\n", ftell(ip));
+		printf("Error near position 0x%lx: There was an IO error.\n", ftell(ip));
 		exit(3);
 	}
 
@@ -225,13 +242,13 @@ void output_location_info(FILE *ip, FILE *op)
 
 	if(fread(&loc_id, sizeof(BYTE), 1, ip) != 1)
 	{
-		printf("Error near position %ld: Reached EOF or had IO error while reading location information.\n", ftell(ip));
+		printf("Error near position 0x%lx: Reached EOF or had IO error while reading location information.\n", ftell(ip));
 		exit(4);
 	}
 
 	if(fread(&location, sizeof(DWORD), 1, ip) != 1)
 	{
-		printf("Error near position %ld: Reached EOF or had IO error while reading location information.\n", ftell(ip));
+		printf("Error near position 0x%lx: Reached EOF or had IO error while reading location information.\n", ftell(ip));
 		exit(4);
 	}
 
@@ -286,7 +303,7 @@ void output_location_info(FILE *ip, FILE *op)
 							break;
 						default:
 						{
-							printf("Error near position %ld: Register ID 0x%x invalid.\n", ftell(ip), location);
+							printf("Error near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
 							exit(5);
 						}
 					}
@@ -350,7 +367,7 @@ void output_location_info(FILE *ip, FILE *op)
 							break;
 						default:
 						{
-							printf("Error near position %ld: Register ID 0x%x invalid.\n", ftell(ip), location);
+							printf("Error near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
 							exit(5);
 							break;
 						}
@@ -362,7 +379,7 @@ void output_location_info(FILE *ip, FILE *op)
 			break;
 		default:
 		{
-			printf("Error near position %ld: Location type 0x%x invalid.\n", ftell(ip), loc_id);
+			printf("Error near position 0x%lx: Location type 0x%x invalid.\n", ftell(ip), loc_id);
 			exit(5);
 			break;
 		}
@@ -376,7 +393,7 @@ BYTE get_byte(FILE *ip)
 
 	if(fread(&b, sizeof(BYTE), 1, ip) != 1)
 	{
-		printf("Error near position %ld: Reached unexpected EOF or had IO error.\n", ftell(ip));
+		printf("Error near position 0x%lx: Reached unexpected EOF or had IO error.\n", ftell(ip));
 		exit(4);
 	}
 
@@ -390,7 +407,7 @@ DWORD get_dword(FILE *ip)
 
 	if(fread(&d, sizeof(DWORD), 1, ip) != 1)
 	{
-		printf("Error near position %ld: Reached unexpected EOF or had IO error.\n", ftell(ip));
+		printf("Error near position 0x%lx: Reached unexpected EOF or had IO error.\n", ftell(ip));
 		exit(4);
 	}
 
@@ -428,7 +445,7 @@ void output_condition(FILE *ip, FILE *op)
 		}
 		default:
 		{
-			printf("Error near position %ld: Condition type 0x%x invalid.\n", ftell(ip), condition);
+			printf("Error near position 0x%lx: Condition type 0x%x invalid.\n", ftell(ip), condition);
 			exit(5);
 			break;
 		}
