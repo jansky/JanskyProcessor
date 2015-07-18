@@ -1003,9 +1003,11 @@ bool stack_push(CPU *cpu, RAMUNIT *ram, DWORD value)
 	emu_error = 0;
 	uint32_t insertwhere = cpu->sp;
 	insertwhere -= 3;
+	//printf("stack push called.\n");
 	
 	if(insertwhere < cpu->sb)
 	{
+		//printf("stack push failure line 1007\n");
 		return false;
 	}
 	
@@ -1013,19 +1015,24 @@ bool stack_push(CPU *cpu, RAMUNIT *ram, DWORD value)
 	
 	if(emu_error != 0)
 	{
+		//printf("stack push failure line 1015\n");
 		return false;
 	}
 	
 	cpu->sp -= 4;
+
+	//printf("stack push value 0x%x\n", value);
 	
 	return true;
 }
 
 DWORD stack_pop(CPU *cpu, RAMUNIT *ram)
 {
+	//printf("stack pop called.\n");
 	emu_error = 0;
 	if(cpu->sp + 4 >= ram->bytesize)
 	{
+		//printf("stack pop failure line 1029\n");
 		emu_error = EMUERR_OUTOFRANGE;
 		return 0;
 	}
@@ -1033,7 +1040,10 @@ DWORD stack_pop(CPU *cpu, RAMUNIT *ram)
 	DWORD value = get_dword_at_ram_address(ram, cpu->sp + 1);
 	
 	if(emu_error != 0)
+	{
+		//printf("stack pop failure line 1038\n");
 		return 0;
+	}
 	
 	cpu->sp += 4;
 	

@@ -77,6 +77,8 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	std::vector<Byte> bytes;
 	std::map<std::string,std::vector<Byte>> labels;
 	std::map<uint32_t,std::string> jumps;
+
+
 	
 	if(line_tokens[0] == "hlt")
 	{
@@ -116,10 +118,26 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 		{
 			bytes.push_back(0x06);
 			
-			std::vector<Byte> loc1_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e, jumps, (uint32_t)bytes.size()+offset);
+			if(line_tokens[1] == "l")
+			{
+				jumps[(uint32_t)bytes.size() + offset] = line_tokens[2];
+				
+				bytes.push_back(0x02);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+			}
+			else
+			{
+				std::vector<Byte> loc_bytes = assembler_assemble_location(line_tokens[1], line_tokens[2], e);
+			
+				bytes.insert(bytes.end(), loc_bytes.begin(), loc_bytes.end());
+			}
+
 			std::vector<Byte> loc2_bytes = assembler_assemble_location(line_tokens[3], line_tokens[4], e, jumps, (uint32_t)bytes.size()+offset);
 			
-			bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
+			//bytes.insert(bytes.end(), loc1_bytes.begin(), loc1_bytes.end());
 			bytes.insert(bytes.end(), loc2_bytes.begin(), loc2_bytes.end());
 		}
 	}
@@ -262,7 +280,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			
 			Byte b[4];
 	
-			*reinterpret_cast<uint32_t*>(b) = (uint32_t)bytes.size() + offset;
+			*reinterpret_cast<uint32_t*>(b) = (uint32_t)bytes.size() + offset + (uint32_t)1024;
 			 
 			std::vector<Byte> lblbytes;
 			
@@ -711,7 +729,15 @@ int main(int argc, char **argv)
 						; //Ignore line, it's empty
 					else
 					{
-						ParserReturn p = assembler_parse_line_tokens(line_tokens, e, (uint32_t)bytes.size());
+						uint32_t offset = (uint32_t)bytes.size();
+
+						
+
+						
+
+						std::cout << offset << std::endl;
+
+						ParserReturn p = assembler_parse_line_tokens(line_tokens, e, offset);
 										
 						bytes.insert(bytes.end(), p.bytes.begin(), p.bytes.end());
 						

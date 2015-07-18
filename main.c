@@ -57,6 +57,9 @@ int main(int argc, char **argv)
 		//HLT
 		set_byte_at_ram_address(ram, 7, 0x00);
 		*/
+
+		//This should fix stack problems.
+		stack_push(cpu, ram, 0);
 		
 		load_program_at_address(ram, 1024, argv[1]);
 		
@@ -69,6 +72,7 @@ int main(int argc, char **argv)
 			
 			if(result->error != CPURESULT_SUCCESS)
 			{
+				//printf("Error result: 0x%x", result->error);
 					if(!do_cpu_interrupt(cpu, ram, (BYTE) result->error))
 						cpu->halted = true;
 			}
