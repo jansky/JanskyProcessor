@@ -35,11 +35,16 @@ bool output_string_to_screen(RAMUNIT *ram, DWORD location)
 		c = get_byte_at_ram_address(ram, i);
 
 		if(emu_error != 0)
+		{
+			//	printf("Error at ram address 0x%x\n", i);
 			return false;
+		}
 
 		i++;
 
 	}
+
+	return true;
 }
 
 bool output_number_to_screen(DWORD number, int base)

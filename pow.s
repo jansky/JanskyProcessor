@@ -5,8 +5,8 @@
 ; ar1 - ar1^ar2
 ; Uses
 ; ar1, ar2, ar3, ar4
-put r ar1 16
-put r ar2 3
+put r ar1 8
+put r ar2 2
 put r ar3 1
 cpy r ar1 r ar4
 ; Are we raising to the zero power?
@@ -18,7 +18,6 @@ lbl loop
 cmp r ar3 r ar2
 jmprc ne l pow l loop
 jmp l result
-hlt
 lbl pow
 mul r ar1 r ar4
 add r ar3 a 1

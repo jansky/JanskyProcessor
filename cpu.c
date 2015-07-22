@@ -193,6 +193,21 @@ DWORD get_value(CPU *cpu, RAMUNIT *ram, BYTE loc_id, DWORD location)
 		case 0x04:
 			return get_dword_at_ram_address(ram, get_dword_at_ram_address(ram, location));
 			break;
+	case 0x05:
+		return (BYTE)get_value_from_register(cpu, location);
+		break;
+	case 0x06:
+		return get_byte_at_ram_address(ram, location);
+		break;
+	case 0x07:
+		return (BYTE)location;
+		break;
+	case 0x08:
+		return get_byte_at_ram_address(ram, get_value_from_register(cpu, location));
+		break;
+	case 0x09:
+		return get_byte_at_ram_address(ram, get_dword_at_ram_address(ram, location));
+		break;
 		default:
 			emu_error = EMUERR_OUTOFRANGE;
 			return 0;
@@ -215,6 +230,49 @@ bool put_value(CPU *cpu, RAMUNIT *ram, BYTE loc_id, DWORD location, DWORD value)
 				return false;
 			
 			break;
+	case 0x03:
+	{
+		set_dword_at_ram_address(ram, get_value_from_register(cpu, location), value);
+
+		if(emu_error != 0)
+			return false;
+		break;
+	}
+	case 0x04:
+	{
+		set_dword_at_ram_address(ram, get_dword_at_ram_address(ram, location), value);
+
+		if(emu_error != 0)
+			return false;
+	}
+	
+		case 0x05:
+			
+			return put_value_in_register(cpu, location, (BYTE)value);
+			break;
+		case 0x06:
+			
+			set_byte_at_ram_address(ram, location, (BYTE)value);
+			
+			if(emu_error != 0)
+				return false;
+			
+			break;
+	case 0x08:
+	{
+		set_byte_at_ram_address(ram, get_value_from_register(cpu, location), (BYTE)value);
+
+		if(emu_error != 0)
+			return false;
+		break;
+	}
+	case 0x09:
+	{
+		set_byte_at_ram_address(ram, get_dword_at_ram_address(ram, location), (BYTE)value);
+
+		if(emu_error != 0)
+			return false;
+	}
 		default:
 			return false;
 	}

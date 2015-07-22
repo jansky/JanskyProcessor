@@ -252,6 +252,14 @@ void output_location_info(FILE *ip, FILE *op)
 		exit(4);
 	}
 
+	
+
+	if(loc_id > 0x04)
+	{
+		loc_id -= 0x05;
+		fprintf(op, "b");
+	}
+
 	switch(loc_id)
 	{
 		case 0x00:
