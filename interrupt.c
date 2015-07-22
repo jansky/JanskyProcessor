@@ -7,7 +7,7 @@
 
 bool do_cpu_interrupt(CPU *cpu, RAMUNIT *ram, BYTE id)
 {
-	printf("Interrupt 0x%x called.\n", id);
+//	printf("Interrupt 0x%x called.\n", id);
 	emu_error = 0;
 
 	//Check if BIOS interrupt

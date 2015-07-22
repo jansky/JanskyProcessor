@@ -256,7 +256,7 @@ CPURESULT *cpu_exec_instruction(CPU *cpu, RAMUNIT *ram)
 		//INT
 		case 0x03:
 		{
-			printf("Interrupt called.\n");
+//			printf("Interrupt called.\n");
 			if(curr_address + 1 >= ram->bytesize)
 			{
 				return cpu_result_create(CPURESULT_ILLEGALACCESS, curr_address, instruction);

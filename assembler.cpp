@@ -768,7 +768,7 @@ int main(int argc, char **argv)
 
 						
 
-						std::cout << offset << std::endl;
+						
 
 						ParserReturn p = assembler_parse_line_tokens(line_tokens, e, offset);
 										
