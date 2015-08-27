@@ -1,0 +1,6 @@
+SRCS=$(wildcard *.s)
+
+all: programs
+
+programs:
+	find 

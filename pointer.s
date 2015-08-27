@@ -1,4 +1,0 @@
-put m 0xFF 0x103
-put r ar1 0xFF
-cpy pr ar1 r ar2
-hlt

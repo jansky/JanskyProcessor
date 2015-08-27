@@ -1,0 +1,4 @@
+put r ar1 0xFF
+hlt
+raws .dta
+rawb 0xFE

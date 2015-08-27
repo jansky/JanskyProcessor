@@ -1,47 +1,18 @@
-cc = cc -std=c99
-output = emulator
-
- 
-ifeq ($(OS),Windows_NT)
-	output = emulator.exe
-endif
- 
- 
-all: emulator assembler memanalyze disassembler
- 
-emulator: main.o memory.o cpu.o interrupt.o bios.o screen.o
-	$(cc) -o $(output) main.o memory.o cpu.o interrupt.o bios.o screen.o
-
-main.o: main.c
-	$(cc) -c main.c
-
-memory.o: memory.c
-	$(cc) -c memory.c
-
-cpu.o: cpu.c
-	$(cc) -c cpu.c
-
-interrupt.o: interrupt.c
-	$(cc) -c interrupt.c
-
-bios.o: bios.c
-	$(cc) -c bios.c
-
-screen.o: screen.c
-	$(cc) -c screen.c
-
-assembler: assembler.cpp
-	g++ -std=c++0x -o assembler assembler.cpp
-
-memanalyze: memory.o memanalyze.c
-	$(cc) -o memanalyze memanalyze.c memory.o
-
-disassembler: disassembler.c
-	$(cc) -o disassembler disassembler.c
+all:
+	$(MAKE) -C emulator all
+	$(MAKE) -C assembler all
+	$(MAKE) -C disassembler all
+	$(MAKE) -C memanalyze all
 
 clean:
-	rm *.o
-	rm $(output)
-	rm assembler
-	rm memanalyze
-	rm disassembler
+	$(MAKE) -C emulator clean
+	$(MAKE) -C assembler clean
+	$(MAKE) -C disassembler clean
+	$(MAKE) -C memanalyze clean
+
+install:
+	$(MAKE) -C emulator install
+	$(MAKE) -C assembler install
+	$(MAKE) -C disassembler install
+	$(MAKE) -C memanalyze install
+

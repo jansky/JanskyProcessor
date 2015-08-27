@@ -1,0 +1,6 @@
+CFLAGS = -I../include -std=c99 -g
+
+all: disassembler
+
+disassembler: disassembler.o
+	cc $(CFLAGS) -o jdisassembler 

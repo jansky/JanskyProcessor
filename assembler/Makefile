@@ -1,0 +1,19 @@
+CPPFLAGS = -I../include -std=c++0x -g
+
+all: assembler
+
+assembler: assembler.o
+	g++ $(CPPFLAGS) -o jassembler assembler.o
+
+assembler.o: assembler.cpp
+	g++ $(CPPFLAGS) -c assembler.cpp
+
+install:
+	cp jassembler /usr/bin
+
+deinstall:
+	rm /usr/bin/jassembler
+
+clean:
+	rm *.o
+	rm jassembler

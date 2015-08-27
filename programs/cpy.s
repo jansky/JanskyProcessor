@@ -1,0 +1,6 @@
+put m 0xFF 0x100
+put m 0x103 2
+cpy m 0xFF r ar1
+cpy m 0x103 r ar2
+div r ar1 r ar2
+hlt

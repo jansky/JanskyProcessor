@@ -1,0 +1,66 @@
+#include <bios.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+IOUNIT *iounit_get_at_index(IOUNIT *root, int index)
+{
+	IOUNIT *current;
+
+	current = root;
+	
+	if(index == -1)
+	{
+		//get last item
+		for(;;)
+		{
+			if(current == NULL)
+				return NULL;
+			else if(current->next = NULL)
+				return current;
+			else
+				current = current->next;
+		}
+	}
+	else if(index == 0)
+	{
+		//get first item
+		return root;
+	}
+	else if(index > 0)
+	{
+		for(int i = 0;;i++)
+		{
+			if(i == index)
+				return current;
+			else if(current != NULL && current->next != NULL)
+				current = current->next;
+			else
+				return NULL;
+		}
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+bool iounit_insert(IOUNIT *root, IOUNIT *new)
+{
+	IOUNIT *last = iounit_get_at_index(root, -1);
+
+	if(last == NULL)
+		return false;
+
+	last->next = new;
+
+	return true;
+}
+
+bool iounit_remove(IOUNIT *root, int index)
+{
+	
+
+
+
+						      
+						     
