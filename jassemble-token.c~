@@ -1,5 +1,0 @@
-#include "jassemble.h"
-
-char *jassemble_get_next_token(FILE *fp)
-{
-	
