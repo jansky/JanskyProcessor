@@ -42,6 +42,8 @@ CPU *cpu_init(void)
 	cpu->nr3 = 0;
 	cpu->nr4 = 0;
 	cpu->nr5 = 0;
+	cpu->nr6 = 0;
+	cpu->nr7 = 0;
 
 	cpu->or1 = 0;
 	
@@ -1252,6 +1254,7 @@ void print_end_dump(CPU *cpu, CPURESULT *result, RAMUNIT *ram)
 	printf("nr4 - %x\n", cpu->nr4);
 	printf("nr5 - %x\n", cpu->nr5);
 	printf("nr6 - %x\n", cpu->nr6);
+	printf("nr7 - %x\n", cpu->nr7);
 	printf("or1 - %x\n", cpu->or1);
 	printf("cr1 - %x\n", cpu->cr1);
 	printf("pr1 - %x\n", cpu->pr1);

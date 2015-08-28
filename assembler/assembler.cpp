@@ -669,6 +669,22 @@ std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string lo
 		//No FPU yet
 		else if(location == "flr1")
 			bytes.push_back(0x0F);
+		else if(location == "nr1")
+			bytes.push_back(0x10);
+		else if(location == "nr2")
+			bytes.push_back(0x11);
+		else if(location == "nr3")
+			bytes.push_back(0x12);
+		else if(location == "nr4")
+			bytes.push_back(0x13);
+		else if(location == "nr5")
+			bytes.push_back(0x14);
+		else if(location == "nr6")
+			bytes.push_back(0x15);
+		else if(location == "nr7")
+			bytes.push_back(0x16);
+		else if(location == "or1")
+			bytes.push_back(0x17);
 		else
 			assembler_print_error_and_exit("\'" + location + "\' is not a valid register location.", e, 1);
 		
@@ -716,6 +732,22 @@ std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string lo
 		//No FPU yet
 		else if(location == "flr1")
 			bytes.push_back(0x0F);
+		else if(location == "nr1")
+			bytes.push_back(0x10);
+		else if(location == "nr2")
+			bytes.push_back(0x11);
+		else if(location == "nr3")
+			bytes.push_back(0x12);
+		else if(location == "nr4")
+			bytes.push_back(0x13);
+		else if(location == "nr5")
+			bytes.push_back(0x14);
+		else if(location == "nr6")
+			bytes.push_back(0x15);
+		else if(location == "nr7")
+			bytes.push_back(0x16);
+		else if(location == "or1")
+			bytes.push_back(0x17);
 		else
 			assembler_print_error_and_exit("\'" + location + "\' is not a valid register location.", e, 1);
 		
@@ -764,6 +796,22 @@ std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string lo
 		//No FPU yet
 		else if(location == "flr1")
 			bytes.push_back(0x0F);
+		else if(location == "nr1")
+			bytes.push_back(0x10);
+		else if(location == "nr2")
+			bytes.push_back(0x11);
+		else if(location == "nr3")
+			bytes.push_back(0x12);
+		else if(location == "nr4")
+			bytes.push_back(0x13);
+		else if(location == "nr5")
+			bytes.push_back(0x14);
+		else if(location == "nr6")
+			bytes.push_back(0x15);
+		else if(location == "nr7")
+			bytes.push_back(0x16);
+		else if(location == "or1")
+			bytes.push_back(0x17);
 		else
 			assembler_print_error_and_exit("\'" + location + "\' is not a valid register location.", e, 1);
 		
@@ -811,6 +859,22 @@ std::vector<Byte> assembler_assemble_location(std::string loc_id, std::string lo
 		//No FPU yet
 		else if(location == "flr1")
 			bytes.push_back(0x0F);
+		else if(location == "nr1")
+			bytes.push_back(0x10);
+		else if(location == "nr2")
+			bytes.push_back(0x11);
+		else if(location == "nr3")
+			bytes.push_back(0x12);
+		else if(location == "nr4")
+			bytes.push_back(0x13);
+		else if(location == "nr5")
+			bytes.push_back(0x14);
+		else if(location == "nr6")
+			bytes.push_back(0x15);
+		else if(location == "nr7")
+			bytes.push_back(0x16);
+		else if(location == "or1")
+			bytes.push_back(0x17);
 		else
 			assembler_print_error_and_exit("\'" + location + "\' is not a valid register location.", e, 1);
 		
