@@ -17,3 +17,7 @@ bool do_bios_interrupt(CPU *cpu, RAMUNIT *ram);
 bool output_string_to_screen(RAMUNIT *ram, DWORD location);
 bool output_number_to_screen(DWORD number, int base);
 bool output_byte_as_string_to_screen(CPU *cpu, RAMUNIT *ram, bool ar1ispointer);
+
+bool input_string(CPU *cpu, RAMUNIT *ram, DWORD location, DWORD maxsize);
+bool input_dword(CPU *cpu, RAMUNIT *ram, DWORD location);
+bool input_byte(CPU *cpu, RAMUNIT *ram, DWORD location);
