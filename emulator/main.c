@@ -1,116 +1,298 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 #include "memory.h"
 #include "types.h"
+#include "bios.h"
 #include "cpu.h"
+
+void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *programfile, bool writedump, char *dumpfile, bool regdump, char *root);
+
+void do_about();
+
+
 
 int main(int argc, char **argv)
 {
-	
-	if(argc > 1)
-	{
-		
-		if(strcmp(argv[1], "-v") == 0)
-		{
-			
-			printf("Emulator\n\nCopyright (c) Ian Duncan 2015\n\nLicensed under the MIT License\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n");
-			return 0;
-		}
-		
-		
-		
-		
-		
-		//10*1024 kb memory
-		//uint32_t memsize = 10485760;
-		uint32_t memsize = 10485760;
-		
-		
-		RAMUNIT *ram = ram_unit_init(memsize);
-		CPU *cpu = cpu_init();
-		CPURESULT *result;
-		
-		uint32_t address = 1024;
-		int instructions_executed = 0;
-		
-		cpu->sp = 10485760;
-		cpu->sb = 10482560;
-		
-		cpu->ip = 0;
-		cpu->or1 = 4096;
-		
-		
-		
-		
-		/*//PUT
-		set_byte_at_ram_address(ram, 0, 0x05);
-		
-		set_byte_at_ram_address(ram, 1, 0x00);
-		
-		set_dword_at_ram_address(ram, 2, 0x02);
-		
-		set_dword_at_ram_address(ram, 6, 255);
-		
-		
-		
-		
-		//HLT
-		set_byte_at_ram_address(ram, 7, 0x00);
-		*/
+	int c;
+	static int mem_dump = true;
+	static int reg_dump = true;
+	static int about = false;
 
-		//This should fix stack problems.
-		stack_push(cpu, ram, 0);
-		
-		load_program_at_address(ram, 4096, argv[1]);
-		
-		
-		
-		
-		while(!cpu->halted)
+	uint32_t memsize = 10485760;
+	uint32_t stacksize = 0x100;
+	uint32_t loadat = 0x400;
+
+	char *program = NULL;
+	char *dmp_file = "mem.dmp";
+	char *root = NULL;
+	
+
+	while(1)
+	{
+		static struct option long_options[] =
 		{
-			result = cpu_exec_instruction(cpu, ram, false);
-			
-			if(result->error != CPURESULT_SUCCESS)
-			{
-				//printf("Error result: 0x%x", result->error);
-					if(!do_cpu_interrupt(cpu, ram, (BYTE) result->error))
-						cpu->halted = true;
-			}
-			
-			address = result->address;
-			
-			instructions_executed++;
-			
-			if(!cpu->halted)
-				free(result);
+			{"no-reg-dump", no_argument, &reg_dump, false},
+			{"no-mem-dump", no_argument, &mem_dump, false},
+			{"version", no_argument, &about, true},
+			{"program", required_argument, 0, 'p'},
+			{"memsize", required_argument, 0, 'm'},
+			{"stacksize", required_argument, 0, 's'},
+			{"loadat", required_argument, 0, 'l'},
+			{"dumpfile", required_argument, 0, 'd'},
+			{"rootdir", required_argument, 0, 'r'},
+			{0,0,0,0}
+		};
+
+		int option_index = 0;
+
+		c = getopt_long(argc, argv, "p:m:s:l:d:r:", long_options, &option_index);
+
+		if(c == -1)
+			break;
+
+		switch(c)
+		{
+		case 0:
+			break;
+		case 'p':
+			program = optarg;
+			break;
+		case 'd':
+		{
+			if(optarg != NULL)
+				dmp_file = optarg;
+			break;
 		}
+		case 'r':
+		{
+			if(optarg != NULL)
+				root = optarg;
+			break;
+		}
+		case 'm':
+		{
+			if(optarg != NULL)
+			{
+				if(sscanf(optarg, "%x", &memsize) != 1)
+				{
+					fprintf(stderr, "Error: --memsize expects hexadecimal value.\n");
+					exit(1);
+				}
+
+				if(memsize < 0x100000)
+				{
+					fprintf(stderr, "Error: memory size must be at least 0x100000.\n");
+					exit(1);
+				}
+			}
+
+			break;
+		}
+		case 's':
+		{
+			if(optarg != NULL)
+			{
+				if(sscanf(optarg, "%x", &stacksize) != 1)
+				{
+					fprintf(stderr, "Error: --stacksize expects hexadecimal value.\n");
+					exit(1);
+				}
+
+				if(memsize < 0x96)
+				{
+					fprintf(stderr, "Error: stack size must be at least 0x96.\n");
+					exit(1);
+				}
+			}
+
+			break;
+		}
+		case 'l':
+		{
+			if(optarg != NULL)
+			{
+				if(sscanf(optarg, "%x", &loadat) != 1)
+				{
+					fprintf(stderr, "Error: --loadat expects hexadecimal value.\n");
+					exit(1);
+				}
+
+				
+			}
+
+			break;
+		}
+		case '?':
+			break;
+		default:
+			abort();
+			break;
+		}
+	}
+
+	if(about)
+	{
+		do_about();
+		exit(0);
+	}
+	
+
+	if(program == NULL)
+	{
+		fprintf(stderr, "Error: Program filename must be specified.\n");
+		exit(1);
+	}
+
+	run_emulator(memsize, stacksize, loadat, program, mem_dump, dmp_file, reg_dump, root);
+
+	
+	
 		
-		print_end_dump(cpu, result, ram);
+
+				
+
 		
-		printf("Instructions executed: %d\n", instructions_executed);
+
+	
+	return 0;
+}
+
+void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *programfile, bool writedump, char *dumpfile, bool regdump, char *root)
+{
+	
 		
-		//Write RAM dump
-		char *filename = "mem.dmp";
 		
-		if(argc > 2)
-			filename = argv[2];
+	RAMUNIT *ram = ram_unit_init(memsize);
+	CPU *cpu = cpu_init();
+	CPURESULT *result;
+	INTEROP_INFO *iinfo;
 		
-		if(!write_ram_contents_to_file(ram, filename))
-			printf("Unable to write RAM dump to \'%s\'.\n", filename);
-		else
-			printf("Wrote RAM dump to \'%s\'.\n", filename);
+	
+	int instructions_executed = 0;
+
+	if(ram == NULL || cpu == NULL)
+	{
+		fprintf(stderr, "Error: Initialization failed.\n");
+		exit(2);
+	}
 		
-		//Be kind.
-		free(ram);
-		free(cpu);
-		free(result);
+	cpu->sp = memsize - 1;
+	cpu->sb = ((memsize - 1) - (stacksize*4));
+
+	if(loadat >= (memsize - 1))
+	{
+		fprintf(stderr, "Error: Program load position out of bounds.\n");
+		exit(3);
+	}
+
+	if(cpu->sb <= loadat)
+	{
+		fprintf(stderr, "Error: Stack base cannot be lower than program load position.\n");
+		exit(4);
+	}
+
+	
+		
+	cpu->ip = 0;
+	cpu->or1 = loadat;
+
+	//setup interop
+	if(root == NULL)
+	{
+		//no disk interop
+		iinfo = interop_info_create(NULL, false);
+
+		if(iinfo == NULL)
+		{
+			fprintf(stderr, "Error: Unable to allocate memory for interop info struct.\n");
+
+			exit(6);
+		}
 	}
 	else
 	{
-		printf("Usage:\n%s [file to run] [[(optional) RAM dump output]]\n%s -v for version and copyright information\n", argv[0], argv[0]);
-		return 1;
+		//disk interop enabled
+		iinfo = interop_info_create(root, true);
+
+		if(iinfo == NULL)
+		{
+			fprintf(stderr, "Error: Unable to allocate memory for interop info struct.\n");
+
+			exit(6);
+		}
+
 	}
+
+	cpu->iinfo = iinfo;
+
 	
-	return 0;
+		
+		
+		
+		
+		
+	//This should fix stack problems.
+	//stack_push(cpu, ram, 0);
+		
+	load_program_at_address(ram, loadat, programfile);
+
+	
+		
+		
+		
+		
+	while(!cpu->halted)
+	{
+		result = cpu_exec_instruction(cpu, ram, false);
+			
+		if(result->error != CPURESULT_SUCCESS)
+		{
+			//printf("Error result: 0x%x", result->error);
+			if(!do_cpu_interrupt(cpu, ram, (BYTE) result->error))
+				cpu->halted = true;
+		}
+			
+		
+			
+		instructions_executed++;
+			
+		if(!cpu->halted)
+			free(result);
+	}
+
+	if(regdump)
+	{		
+		print_end_dump(cpu, result, ram);
+		
+		printf("Instructions executed: %d\n", instructions_executed);
+	}
+		
+	//Write RAM dump
+	
+		
+	if(writedump)
+	{
+		if(!write_ram_contents_to_file(ram, dumpfile))
+			fprintf(stderr, "Unable to write RAM dump to \'%s\'.\n", dumpfile);
+		else
+		{
+			fprintf(stderr, "Wrote RAM dump to \'%s\'.\n", dumpfile);
+			exit(5);
+		}
+	}
+		
+	//Be kind.
+	free(ram);
+	free(cpu);
+	free(result);
+}
+
+void do_about()
+{
+	
+	printf("Emulator\n\nCopyright (c) Ian Duncan 2015\n\nLicensed under the MIT License\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n");
+		
+	
 }

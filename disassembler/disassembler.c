@@ -65,156 +65,164 @@ int main(int argc, char **argv)
 		
 		switch(instruction)
 		{
-			case 0x00:
-			{
-				fprintf(op, "hlt");
-				break;
+		case 0x00:
+		{
+			fprintf(op, "hlt");
+			break;
 
-			}
-			case 0x03:
-			{
-				fprintf(op, "int ");
-				fprintf(op, "0x%x", get_byte(ip));
-				break;
+		}
+		case 0x03:
+		{
+			fprintf(op, "int ");
+			fprintf(op, "0x%x", get_byte(ip));
+			break;
 
-			}
-			case 0x05:
-			{
-				fprintf(op, "put ");
-				output_location_info(ip, op);
-				fprintf(op, " 0x%x", get_dword(ip));
-				break;
-			}
-			case 0x06:
-			{
-				fprintf(op, "cpy ");
-				output_location_info(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x07:
-			{
-				fprintf(op, "add ");
-				output_location_info(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x08:
-			{
-				fprintf(op, "sub ");
-				output_location_info(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x09:
-			{
-				fprintf(op, "mul ");
-				output_location_info(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x0A:
-			{
-				fprintf(op, "div ");
-				output_location_info(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x0B:
-			{
-				fprintf(op, "push ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x0C:
-			{
-				fprintf(op, "pop ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x0F:
-			{
-				fprintf(op, "jmp ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x10:
-			{
-				fprintf(op, "cmp ");
-				output_location_info(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x11:
-			{
-				fprintf(op, "ret");
-				break;
-			}
-			case 0x12:
-			{
-				fprintf(op, "jmpc ");
-				output_condition(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x13:
-			{
-				fprintf(op, "jmpr ");
-				output_location_info(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x14:
-			{
-				fprintf(op, "jmprc ");
-				output_condition(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				fprintf(op, " ");
-				output_location_info(ip, op);
-				break;
-			}
-			case 0x15:
-			{
-				fprintf(op, "iret");
-				break;
-			}
-			case 0x2e:
-			{
+		}
+		case 0x05:
+		{
+			fprintf(op, "put ");
+			output_location_info(ip, op);
+			fprintf(op, " 0x%x", get_dword(ip));
+			break;
+		}
+		case 0x06:
+		{
+			fprintf(op, "cpy ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x07:
+		{
+			fprintf(op, "add ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x08:
+		{
+			fprintf(op, "sub ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x09:
+		{
+			fprintf(op, "mul ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x0A:
+		{
+			fprintf(op, "div ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x0B:
+		{
+			fprintf(op, "push ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x0C:
+		{
+			fprintf(op, "pop ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x0F:
+		{
+			fprintf(op, "jmp ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x10:
+		{
+			fprintf(op, "cmp ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x11:
+		{
+			fprintf(op, "ret");
+			break;
+		}
+		case 0x12:
+		{
+			fprintf(op, "jmpc ");
+			output_condition(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x13:
+		{
+			fprintf(op, "jmpr ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x14:
+		{
+			fprintf(op, "jmprc ");
+			output_condition(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x15:
+		{
+			fprintf(op, "iret");
+			break;
+		}
+		case 0x16:
+		{
+			fprintf(op, "uip ");
+			output_location_info(ip, op);
+			fprintf(op, " ");
+			output_location_info(ip, op);
+			break;
+		}
+		case 0x2e:
+		{
 
-				//Check for .dta mark
-				if(get_byte(ip) == 0x64 && get_byte(ip) == 0x74 && get_byte(ip) == 0x61)
-				{
-					fprintf(op, "; .dta section begins at position 0x%lx.\n", ftell(ip));
-					fclose(ip);
-					fclose(op);
-					exit(0);
-				}
-				else
-				{
-					printf("Error near position 0x%lx: 0x%x is not a valid instruction.\n", ftell(ip), instruction);
-					exit(5);
-				}
-			}
-			case 0xFF:
+			//Check for .dta mark
+			if(get_byte(ip) == 0x64 && get_byte(ip) == 0x74 && get_byte(ip) == 0x61)
 			{
-				fprintf(op, "tst");
-				break;
+				fprintf(op, "; .dta section begins at position 0x%lx.\n", ftell(ip));
+				fclose(ip);
+				fclose(op);
+				exit(0);
 			}
-			default:
+			else
 			{
 				printf("Error near position 0x%lx: 0x%x is not a valid instruction.\n", ftell(ip), instruction);
 				exit(5);
-				break;
 			}
+		}
+		case 0xFF:
+		{
+			fprintf(op, "tst");
+			break;
+		}
+		default:
+		{
+			printf("Error near position 0x%lx: 0x%x is not a valid instruction.\n", ftell(ip), instruction);
+			exit(5);
+			break;
+		}
 		}
 
 		fprintf(op, "\n");
@@ -263,135 +271,135 @@ void output_location_info(FILE *ip, FILE *op)
 
 	switch(loc_id)
 	{
-		case 0x00:
-		{
-			fprintf(op, "r ");
+	case 0x00:
+	{
+		fprintf(op, "r ");
 
-			switch(location)
-			{
+		switch(location)
+		{
 					
-						case 0x00:
-							fprintf(op, "ar1");
-							break;
-						case 0x01:
-							fprintf(op, "ar2");
-							break;
-						case 0x02:
-							fprintf(op, "ar3");
-							break;
-						case 0x03:
-							fprintf(op, "ar4");
-							break;
-						case 0x04:
-							fprintf(op, "ar5");
-							break;
-						case 0x05:
-							fprintf(op, "ip");
-							break;
-						case 0x06:
-							fprintf(op, "bp");
-							break;
-						case 0x07:
-							fprintf(op, "sp");
-							break;
-						case 0x08:
-							fprintf(op, "sb");
-							break;
-						//FPU not implemented yet
-						case 0x0A:
-							fprintf(op, "cr1");
-							break;
-						case 0x0B:
-							fprintf(op, "pr1");
-							break;
-						case 0x0C:
-							fprintf(op, "pr1");
-							break;
-						case 0x0F:
-							fprintf(op, "flr1");
-							break;
-						default:
-						{
-							printf("Error near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
-							exit(5);
-						}
-					}
+		case 0x00:
+			fprintf(op, "ar1");
 			break;
-		}
 		case 0x01:
-		{
-			fprintf(op, "m ");
-
-			fprintf(op, "0x%x", location);
+			fprintf(op, "ar2");
 			break;
-		}
 		case 0x02:
-			fprintf(op, "a ");
-			fprintf(op, "0x%x", location);
+			fprintf(op, "ar3");
 			break;
 		case 0x03:
-			fprintf(op, "pr ");
-			switch(location)
-			{
-					
-						case 0x00:
-							fprintf(op, "ar1");
-							break;
-						case 0x01:
-							fprintf(op, "ar2");
-							break;
-						case 0x02:
-							fprintf(op, "ar3");
-							break;
-						case 0x03:
-							fprintf(op, "ar4");
-							break;
-						case 0x04:
-							fprintf(op, "ar5");
-							break;
-						case 0x05:
-							fprintf(op, "ip");
-							break;
-						case 0x06:
-							fprintf(op, "bp");
-							break;
-						case 0x07:
-							fprintf(op, "sp");
-							break;
-						case 0x08:
-							fprintf(op, "sb");
-							break;
-						//FPU not implemented yet
-						case 0x0A:
-							fprintf(op, "cr1");
-							break;
-						case 0x0B:
-							fprintf(op, "pr1");
-							break;
-						case 0x0C:
-							fprintf(op, "pr1");
-							break;
-						case 0x0F:
-							fprintf(op, "flr1");
-							break;
-						default:
-						{
-							printf("Error near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
-							exit(5);
-							break;
-						}
-					}
+			fprintf(op, "ar4");
 			break;
 		case 0x04:
-			fprintf(op, "pm ");
-			fprintf(op, "0x%x", location);
+			fprintf(op, "ar5");
+			break;
+		case 0x05:
+			fprintf(op, "ip");
+			break;
+		case 0x06:
+			fprintf(op, "bp");
+			break;
+		case 0x07:
+			fprintf(op, "sp");
+			break;
+		case 0x08:
+			fprintf(op, "sb");
+			break;
+			//FPU not implemented yet
+		case 0x0A:
+			fprintf(op, "cr1");
+			break;
+		case 0x0B:
+			fprintf(op, "pr1");
+			break;
+		case 0x0C:
+			fprintf(op, "pr1");
+			break;
+		case 0x0F:
+			fprintf(op, "flr1");
 			break;
 		default:
 		{
-			printf("Error near position 0x%lx: Location type 0x%x invalid.\n", ftell(ip), loc_id);
+			printf("Error near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
+			exit(5);
+		}
+		}
+		break;
+	}
+	case 0x01:
+	{
+		fprintf(op, "m ");
+
+		fprintf(op, "0x%x", location);
+		break;
+	}
+	case 0x02:
+		fprintf(op, "a ");
+		fprintf(op, "0x%x", location);
+		break;
+	case 0x03:
+		fprintf(op, "pr ");
+		switch(location)
+		{
+					
+		case 0x00:
+			fprintf(op, "ar1");
+			break;
+		case 0x01:
+			fprintf(op, "ar2");
+			break;
+		case 0x02:
+			fprintf(op, "ar3");
+			break;
+		case 0x03:
+			fprintf(op, "ar4");
+			break;
+		case 0x04:
+			fprintf(op, "ar5");
+			break;
+		case 0x05:
+			fprintf(op, "ip");
+			break;
+		case 0x06:
+			fprintf(op, "bp");
+			break;
+		case 0x07:
+			fprintf(op, "sp");
+			break;
+		case 0x08:
+			fprintf(op, "sb");
+			break;
+			//FPU not implemented yet
+		case 0x0A:
+			fprintf(op, "cr1");
+			break;
+		case 0x0B:
+			fprintf(op, "pr1");
+			break;
+		case 0x0C:
+			fprintf(op, "pr1");
+			break;
+		case 0x0F:
+			fprintf(op, "flr1");
+			break;
+		default:
+		{
+			printf("Error near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
 			exit(5);
 			break;
 		}
+		}
+		break;
+	case 0x04:
+		fprintf(op, "pm ");
+		fprintf(op, "0x%x", location);
+		break;
+	default:
+	{
+		printf("Error near position 0x%lx: Location type 0x%x invalid.\n", ftell(ip), loc_id);
+		exit(5);
+		break;
+	}
 	}
 
 }
@@ -432,32 +440,32 @@ void output_condition(FILE *ip, FILE *op)
 
 	switch(condition)
 	{
-		case 0x00:
-		{
-			fprintf(op, "ne");
-			break;
-		}
-		case 0x01:
-		{
-			fprintf(op, "eq");
-			break;
-		}
-		case 0x02:
-		{
-			fprintf(op, "gt");
-			break;
-		}
-		case 0x03:
-		{
-			fprintf(op, "lt");
-			break;
-		}
-		default:
-		{
-			printf("Error near position 0x%lx: Condition type 0x%x invalid.\n", ftell(ip), condition);
-			exit(5);
-			break;
-		}
+	case 0x00:
+	{
+		fprintf(op, "ne");
+		break;
+	}
+	case 0x01:
+	{
+		fprintf(op, "eq");
+		break;
+	}
+	case 0x02:
+	{
+		fprintf(op, "gt");
+		break;
+	}
+	case 0x03:
+	{
+		fprintf(op, "lt");
+		break;
+	}
+	default:
+	{
+		printf("Error near position 0x%lx: Condition type 0x%x invalid.\n", ftell(ip), condition);
+		exit(5);
+		break;
+	}
 	}
 }
 

@@ -2,8 +2,8 @@ CFLAGS = -I../include -std=c99 -g
 
 all: emulator
 
-emulator: main.o memory.o cpu.o bios.o interrupt.o screen.o input.o
-	cc $(CFLAGS) -o jemulator main.o memory.o cpu.o bios.o interrupt.o screen.o input.o
+emulator: main.o memory.o cpu.o bios.o interrupt.o screen.o input.o interop.o
+	cc $(CFLAGS) -o jemulator main.o memory.o cpu.o bios.o interrupt.o screen.o input.o interop.o
 
 main.o: main.c
 	cc $(CFLAGS) -c main.c
@@ -25,6 +25,9 @@ screen.o: screen.c
 
 input.o: input.c
 	cc $(CFLAGS) -c input.c
+
+interop.o: interop.c
+	cc $(CFLAGS) -c interop.c
 
 install:
 	cp jemulator /usr/bin

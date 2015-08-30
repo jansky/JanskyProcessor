@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "types.h"
 #include "memory.h"
+#include "interop.h"
 
 typedef struct CPU
 {
@@ -45,6 +46,10 @@ typedef struct CPU
 	float fpr2;
 	
 	DWORD flr1;
+
+	INTEROP_INFO *iinfo;
+
+	
 } CPU;
 
 typedef struct CPURESULT

@@ -47,6 +47,7 @@ lbl loop
 cmp r ar3 r ar2
 jmprc ne l pow l loop
 jmp l result
+hlt
 lbl pow
 mul r ar1 r ar4
 add r ar3 a 1

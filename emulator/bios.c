@@ -19,7 +19,7 @@ bool do_bios_interrupt(CPU *cpu, RAMUNIT *ram)
 			//get BIOS version
 		case 0x01:
 		{
-			cpu->ar1 = 0x02;
+			cpu->ar1 = 0x03;
 
 			break;
 		}
@@ -123,7 +123,49 @@ bool do_bios_interrupt(CPU *cpu, RAMUNIT *ram)
 
 		break;
 		
-	}	
+	}
+	//interop opterations
+	case 0x03:
+	{
+		switch(cpu->pr2)
+		{
+	        //query interop
+		case 0x01:
+		{
+			cpu->ar1 = interop_query(cpu->iinfo, cpu->ar1);
+			break;
+		}
+		//read entire file into memory
+		case 0x02:
+		{
+			if(cpu->ar2 >= (cpu->sb))
+			{
+				//set non-fatal error
+				printf("\nstack error trigger\n");
+				cpu->ar5 = 0x01;
+				return true;
+			}
+
+			size_t filepath_loc;
+
+			filepath_loc = (size_t)ram->data;
+			filepath_loc += (size_t)cpu->ar2;
+
+			//printf("\n0x%x - pointer location\n", filepath_loc);
+					
+			return interop_disk_read_file_into_ram(cpu, ram, cpu->ar1, (char*)(filepath_loc), cpu->iinfo);
+
+			break;
+		}
+		default:
+		{
+			return false;
+			break;
+		}
+		}
+
+		break;
+	}		
 	default:
 	{
 		return false;
