@@ -13,7 +13,7 @@ By default, the emulator will output the contents of emulated RAM to a file call
 
 To enable disk interop support (necessary for allowing emulator programs to access files on the actual hard disk), use the `--roodir` option:
 
-`jemulator -p file.bin --rootdir "/home/you/JanskyProcessor/programs"
+`jemulator -p file.bin --rootdir "/home/you/JanskyProcessor/programs"`
 
 You may use any directory you want, but make sure not to include a trailing slash. The root directory is used when emulator programs access the disk. The emulator program must only specify a path relative to the root path. For example, if the root directory is '/home/you/JanskyProcessor/programs' and the emulator program asks for the file 'pow.bin', the emulator will access file '/home/you/JanskyProcessor/programs/pow.bin'.
 
