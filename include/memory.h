@@ -18,7 +18,7 @@ void set_byte_at_ram_address(RAMUNIT *ram, uint32_t address, BYTE data);
 void set_word_at_ram_address(RAMUNIT *ram, uint32_t address, WORD data);
 void set_dword_at_ram_address(RAMUNIT *ram, uint32_t address, DWORD data);
 
-void load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename);
+bool load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename);
 
 bool write_ram_contents_to_file(RAMUNIT *ram, char *filename);
 

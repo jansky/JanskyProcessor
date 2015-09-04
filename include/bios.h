@@ -29,3 +29,4 @@ bool input_byte(CPU *cpu, RAMUNIT *ram, DWORD location);
 INTEROP_INFO *interop_info_create(char *root, bool disk_enabled);
 bool interop_query(INTEROP_INFO *iinfo, int query);
 bool interop_disk_read_file_into_ram(CPU *cpu, RAMUNIT *ram, DWORD location, char *filepath, INTEROP_INFO *iifno);
+bool interop_disk_read_file_into_ram_safe(CPU *cpu, RAMUNIT *ram, DWORD location, DWORD limit, char *filepath, INTEROP_INFO *iinfo);

@@ -153,7 +153,7 @@ void set_dword_at_ram_address(RAMUNIT *ram, uint32_t address, DWORD data)
 	memcpy(ram->data + address, data_array, 4);
 }
 
-void load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename)
+bool load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename)
 {
 	unsigned char *buffer;
 	FILE *fp;
@@ -164,7 +164,7 @@ void load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename)
 	if(fp == NULL)
 	{
 		emu_error = EMUERR_ALLOCERROR;
-		return;
+		return false;
 	}
 	
 	//Get the length of the file
@@ -174,7 +174,7 @@ void load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename)
 	if(address + filesize  > ram->bytesize)
 	{
 		emu_error = EMUERR_ALLOCERROR;
-		return;
+		return false;
 	}
 	
 	buffer = malloc(sizeof(unsigned char)*filesize);
@@ -182,7 +182,7 @@ void load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename)
 	if(buffer == NULL)
 	{
 		emu_error = EMUERR_ALLOCERROR;
-		return;
+		return false;
 	}
 	
 	fseek(fp, 0L, SEEK_SET);
@@ -190,6 +190,8 @@ void load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename)
 	fread(buffer, sizeof(unsigned char), filesize, fp);
 	
 	memcpy(ram->data + address, buffer, sizeof(unsigned char)*filesize);
+
+	return true;
 }
 
 bool write_ram_contents_to_file(RAMUNIT *ram, char *filename)

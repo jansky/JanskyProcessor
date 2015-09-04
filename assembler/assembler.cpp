@@ -520,6 +520,19 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			bytes.push_back(assembler_uint32_string_to_byte_array(line_tokens[1], e)[0]);
 		}
 	}
+	else if(line_tokens[0] == "room")
+	{
+		if(line_tokens.size() < 2)
+			assembler_print_error_and_exit("Macro 'room' requires 1 operand.", e, 1);
+		else
+		{
+			
+			for(int i = 0; i < (assembler_uint32_string_to_byte_array(line_tokens[1], e)[0]); i++)
+			{
+				bytes.push_back(0x00);
+			}
+		}
+	}
 	else if(line_tokens[0] == "raws")
 	{
 		if(line_tokens.size() < 2)

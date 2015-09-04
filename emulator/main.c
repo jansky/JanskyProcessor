@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "types.h"
 #include "bios.h"
+#include "error.h"
 #include "cpu.h"
 
 void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *programfile, bool writedump, char *dumpfile, bool regdump, char *root);
@@ -235,8 +236,17 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 		
 	//This should fix stack problems.
 	//stack_push(cpu, ram, 0);
+
+	emu_error = 0;
 		
-	load_program_at_address(ram, loadat, programfile);
+	if(!load_program_at_address(ram, loadat, programfile))
+	{
+		fprintf(stderr, "Error: Could not load specified program into memory.\n");
+
+		exit(9);
+	}
+
+	
 
 	
 		

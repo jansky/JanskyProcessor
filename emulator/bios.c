@@ -157,6 +157,28 @@ bool do_bios_interrupt(CPU *cpu, RAMUNIT *ram)
 
 			break;
 		}
+		//read entire file into memory (safe)
+		case 0x03:
+		{
+			if(cpu->ar2 >= (cpu->sb))
+			{
+				//set non-fatal error
+				printf("\nstack error trigger\n");
+				cpu->ar5 = 0x01;
+				return true;
+			}
+
+			size_t filepath_loc;
+
+			filepath_loc = (size_t)ram->data;
+			filepath_loc += (size_t)cpu->ar2;
+
+			//printf("\n0x%x - pointer location\n", filepath_loc);
+					
+			return interop_disk_read_file_into_ram_safe(cpu, ram, cpu->ar1, cpu->ar3, (char*)(filepath_loc),  cpu->iinfo);
+
+			break;
+		}
 		default:
 		{
 			return false;
