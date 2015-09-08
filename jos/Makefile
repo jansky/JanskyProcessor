@@ -1,4 +1,4 @@
-all: jos shell pow exit strlen
+all: jos shell pow exit strlen hello
 
 jos: jos.o
 	mv jos.o jos.bin
@@ -7,16 +7,19 @@ jos.o: jos.s syscall.s dta.s
 	./sasm.sh jos.s
 
 shell: shell.s
-	jassembler shell.s shell.bin
+	../assembler/jassembler shell.s shell.bin
 
 pow: pow.s
-	jassembler pow.s pow.bin
+	../assembler/jassembler pow.s pow.bin
 
 exit: exit.s
-	jassembler exit.s exit.bin
+	../assembler/jassembler exit.s exit.bin
 
 strlen: strlen.s
-	jassembler strlen.s strlen.bin
+	../assembler/jassembler  strlen.s strlen.bin
+
+hello: hello.s
+	../assembler/jassembler hello.s hello.bin
 clean:
 	rm *.bin
 	rm *.o	
