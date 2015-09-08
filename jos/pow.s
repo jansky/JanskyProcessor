@@ -104,6 +104,8 @@ cpy r ar5 r ar1
 ; return back to other program
 pop r nr7
 put r ar5 0x00
+put r pr1 0x00
+put r pr2 0x00
 pop r ar1
 pop r ar2
 uip r ar1 r ar2
