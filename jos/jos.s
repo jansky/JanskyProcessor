@@ -1,9 +1,17 @@
+#include "jos.h"
+
 ; load everything and find and execute shell
 jmp l initlog
 jmp l checkinterop
 jmp l interrupts
+put r pr1 0
+put r pr2 0
 jmp l loadshell
 ; when we are back here the shell has exited
+put r pr1 0x01
+put r pr2 0x01
+cpy lo end_res1 r ar1
+int 0x10
 hlt
 
 ; initlog - tell the user hello
@@ -88,8 +96,11 @@ hlt
 ; loadshell - load the shell
 lbl loadshell
 put r pr1 0x02
-add r ar1 a 0x8000
-cpy lo loadshell_res2 r ar2
+;add r ar1 a 0x8000
+;cpy lo loadshell_res2 r ar2
+cpy lo loadshell_res2 r nr1
+push a 0x8000
+push r nr1
 int 0x6a
 cmp r ar5 a 0
 jmpc ne l loadshellerror
@@ -118,105 +129,13 @@ push r bp
 push r or1
 cpy lo jos_offset r nr1
 cpy pr nr1 r or1
+; temporary fix, os must be loaded at 0x400 now
+put r or1 0x400
 cpy l systemcall r bp
 iret
 
-; systemcall - performs the system call requested
-lbl systemcall
-cmp r pr1 a 0x00
-jmprc eq l systemcall_test l systemcallend
-cmp r pr1 a 0x01
-jmprc eq l systemcall_getosrev l systemcallend
-cmp r pr1 a 0x02
-jmprc eq l systemcall_execfile l systemcallend
-lbl systemcallend
-pop r ar1
-pop r ar2
-uip r ar1 r ar2
-
-lbl systemcall_test
-put r nr7 0x6a
-ret
-
-lbl systemcall_getosrev
-cpy lo jos_version r ar1
-cpy pr ar1 r ar1
-ret
-
-lbl systemcall_execfile
-put r pr1 0x03
-put r pr2 0x02
-int 0x10
-cmp r ar5 a 0
-jmpc ne l systemcall_execfile_return
-; verify that program loaded is a valid jOS program
-cpy lo jos_magicnum r nr1
-cmp pr ar1 r nr1
-jmprc ne l systemcall_execfile_invaliderror l systemcall_execfile_return
-; execute the program
-add r ar1 a 4
-cpy lo systemcall_execfile_return r ar3
-push r ar3
-push r or1
-uip r ar1 a 0
-
-lbl systemcall_execfile_invaliderror
-put r ar5 0x100
-ret
-
-
-lbl systemcall_execfile_return
-pop r nr7
-ret
-
-; .dta section
-raws .dta
-lbl jos_version
-rawb 0x01
-rawb 0x00
-rawb 0x00
-rawb 0x00
-lbl jos_ok
-raws OK
-rawb 0x00
-lbl jos_fail
-raws FAIL
-rawb 0x00
-lbl jos_offset
-room 4
-lbl jos_startupfail
-rawb 0x0a
-raws jOS startup failed.
-rawb 0x0a
-rawb 0x0a
-rawb 0x00
-lbl jos_magicnum
-raws .jos
-lbl initlog_res1
-raws Welcome to jOS
-rawb 0x0a
-rawb 0x00
-lbl initlog_res2
-raws Revision
-rawb 0x20
-rawb 0x00
-lbl checkinterop_res1
-raws Checking for interop...
-rawb 0x20
-rawb 0x00
-lbl interrupts_res1
-raws Registering interrupts...
-rawb 0x20
-rawb 0x00
-lbl loadshell_res1
-raws Could not load shell.bin. Error
-rawb 0x20
-rawb 0x00
-lbl loadshell_res2
-raws shell.bin
-rawb 0x00
-lbl end
-room 4
+#include "syscall.s"
+#include "dta.s"
 
 
 

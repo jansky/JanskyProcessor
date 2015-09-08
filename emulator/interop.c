@@ -80,6 +80,8 @@ bool interop_disk_read_file_into_ram(CPU *cpu, RAMUNIT *ram, DWORD location, cha
 
 	sprintf(fullpath, "%s/%s", iinfo->root, filepath);
 
+	printf("\n%s/%s\n", iinfo->root, filepath);
+
 	fp = fopen(fullpath, "rb");
 
 	if(fp == NULL)

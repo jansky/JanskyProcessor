@@ -130,7 +130,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			}
 			else if(line_tokens[1] == "lo")
 			{
-				std::cout << "lo location" << std::endl;
+				//std::cout << "lo location" << std::endl;
 				jumps[(uint32_t)bytes.size() + offset] = line_tokens[2];
 				
 				bytes.push_back(0x0B);

@@ -11,6 +11,8 @@ bool input_string(CPU *cpu, RAMUNIT *ram, DWORD location, DWORD maxsize)
 	
 	emu_error = 0;
 	cpu->ar5 = 0;
+
+	int i = 0;
 	
 	char *buffer;
 	char format[20];
@@ -55,13 +57,21 @@ bool input_string(CPU *cpu, RAMUNIT *ram, DWORD location, DWORD maxsize)
 
 	
 
-	for(int i = 0; i <= strlen(buffer); i++)
+	
+
+	for(i = 0; i <= strlen(buffer); i++)
 	{
 		set_byte_at_ram_address(ram, location+i, buffer[i]);
 
 		if(emu_error != 0)
 			return false;
 	}
+
+	//terminate the string
+	set_byte_at_ram_address(ram, location+i, 0);
+
+	if(emu_error != 0)
+		return false;
 
 	return true;
 }

@@ -251,14 +251,14 @@ void output_location_info(FILE *ip, FILE *op)
 
 	if(fread(&loc_id, sizeof(BYTE), 1, ip) != 1)
 	{
-		printf("Error near position 0x%lx: Reached EOF or had IO error while reading location information.\n", ftell(ip));
-		exit(4);
+		printf("\nError near position 0x%lx: Reached EOF or had IO error while reading location information.\n", ftell(ip));
+		//exit(4);
 	}
 
 	if(fread(&location, sizeof(DWORD), 1, ip) != 1)
 	{
-		printf("Error near position 0x%lx: Reached EOF or had IO error while reading location information.\n", ftell(ip));
-		exit(4);
+		printf("\nError near position 0x%lx: Reached EOF or had IO error while reading location information.\n", ftell(ip));
+		//exit(4);
 	}
 
 	
@@ -320,8 +320,8 @@ void output_location_info(FILE *ip, FILE *op)
 			break;
 		default:
 		{
-			printf("Error near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
-			exit(5);
+			printf("\nError near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
+			//exit(5);
 		}
 		}
 		break;
@@ -384,8 +384,8 @@ void output_location_info(FILE *ip, FILE *op)
 			break;
 		default:
 		{
-			printf("Error near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
-			exit(5);
+			printf("\nError near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
+			//exit(5);
 			break;
 		}
 		}
@@ -396,8 +396,8 @@ void output_location_info(FILE *ip, FILE *op)
 		break;
 	default:
 	{
-		printf("Error near position 0x%lx: Location type 0x%x invalid.\n", ftell(ip), loc_id);
-		exit(5);
+		printf("\nError near position 0x%lx: Location type 0x%x invalid.\n", ftell(ip), loc_id);
+		//exit(5);
 		break;
 	}
 	}
