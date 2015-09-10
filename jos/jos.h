@@ -1,2 +1,7 @@
 #pragma once
 #define JOSREV 0x01
+
+#define SYSCALL_TEST 0x00
+#define SYSCALL_GETOSREV 0x01
+#define SYSCALL_EXECFILE 0x02
+#define SYSCALL_STRLEN 0x03

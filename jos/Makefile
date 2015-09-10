@@ -1,4 +1,4 @@
-all: jos shell pow exit strlen hello
+all: jos shell pow exit strlen hello strlen-new
 
 jos: jos.o
 	mv jos.o jos.bin
@@ -20,6 +20,10 @@ strlen: strlen.s
 
 hello: hello.s
 	../assembler/jassembler hello.s hello.bin
+
+strlen-new: strlen-new.s
+	./sasm.sh strlen-new.s
+	mv strlen-new.o strlen-new.bin
 clean:
 	rm *.bin
 	rm *.o	

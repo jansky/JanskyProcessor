@@ -6,6 +6,8 @@ cmp r pr1 a 0x01
 jmprc eq l systemcall_getosrev l systemcallend
 cmp r pr1 a 0x02
 jmprc eq l systemcall_execfile l systemcallend
+cmp r pr1 a 0x03
+jmprc eq l systemcall_strlen l systemcallend
 lbl systemcallend
 pop r ar1
 pop r ar2
@@ -62,3 +64,28 @@ ret
 
 lbl systemcall_execfile_return_from_remote
 ret
+
+lbl systemcall_strlen
+pop r ar1
+pop r ar2
+pop r ar3
+
+pop r nr1
+
+push r ar3
+push r ar2
+push r ar1
+
+cpy r nr1 r ar1
+
+lbl systemcall_strlen_loop
+cmp bpr nr1 a 0
+jmprc ne l systemcall_strlen_count l systemcall_strlen_loop
+sub r nr1 r ar1
+ret
+
+lbl systemcall_strlen_count
+add r nr1 a 1
+ret
+
+
