@@ -25,6 +25,5 @@ strlen-new: strlen-new.s
 	./sasm.sh strlen-new.s
 	mv strlen-new.o strlen-new.bin
 clean:
-	rm *.bin
-	rm *.o	
+	rm *.bin	
 	rm *.sp

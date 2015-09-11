@@ -1,4 +1,5 @@
 all:
+	$(MAKE) -C common all
 	$(MAKE) -C emulator all
 	$(MAKE) -C assembler all
 	$(MAKE) -C disassembler all
@@ -6,6 +7,7 @@ all:
 	$(MAKE) -C jos all
 
 clean:
+	$(MAKE) -C common clean
 	$(MAKE) -C emulator clean
 	$(MAKE) -C assembler clean
 	$(MAKE) -C disassembler clean

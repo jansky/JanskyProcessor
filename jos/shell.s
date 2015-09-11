@@ -98,5 +98,8 @@ lbl res5
 raws There was an error:
 rawb 0x20
 rawb 0x00
+lbl res6
+raws exit
+rawb 0x00
 
 

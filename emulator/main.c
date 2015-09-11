@@ -8,7 +8,7 @@
 #include "error.h"
 #include "cpu.h"
 
-void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *programfile, bool writedump, char *dumpfile, bool regdump, char *root);
+void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *programfile, bool writedump, char *dumpfile, bool regdump, char *root, bool debug);
 
 void do_about();
 
@@ -20,6 +20,7 @@ int main(int argc, char **argv)
 	static int mem_dump = true;
 	static int reg_dump = true;
 	static int about = false;
+	static int debug = false;
 
 	uint32_t memsize = 10485760;
 	uint32_t stacksize = 0x100;
@@ -37,18 +38,19 @@ int main(int argc, char **argv)
 			{"no-reg-dump", no_argument, &reg_dump, false},
 			{"no-mem-dump", no_argument, &mem_dump, false},
 			{"version", no_argument, &about, true},
+			{"debug", no_argument, &debug, true},
 			{"program", required_argument, 0, 'p'},
 			{"memsize", required_argument, 0, 'm'},
 			{"stacksize", required_argument, 0, 's'},
 			{"loadat", required_argument, 0, 'l'},
-			{"dumpfile", required_argument, 0, 'd'},
+			{"dumpfile", required_argument, 0, 'f'},
 			{"rootdir", required_argument, 0, 'r'},
 			{0,0,0,0}
 		};
 
 		int option_index = 0;
 
-		c = getopt_long(argc, argv, "p:m:s:l:d:r:", long_options, &option_index);
+		c = getopt_long(argc, argv, "p:m:s:l:f:r:", long_options, &option_index);
 
 		if(c == -1)
 			break;
@@ -60,7 +62,7 @@ int main(int argc, char **argv)
 		case 'p':
 			program = optarg;
 			break;
-		case 'd':
+		case 'f':
 		{
 			if(optarg != NULL)
 				dmp_file = optarg;
@@ -146,7 +148,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	run_emulator(memsize, stacksize, loadat, program, mem_dump, dmp_file, reg_dump, root);
+	run_emulator(memsize, stacksize, loadat, program, mem_dump, dmp_file, reg_dump, root, debug);
 
 	
 	
@@ -160,7 +162,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *programfile, bool writedump, char *dumpfile, bool regdump, char *root)
+void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *programfile, bool writedump, char *dumpfile, bool regdump, char *root, bool debug)
 {
 	
 		

@@ -2,8 +2,8 @@ CFLAGS = -I../include -std=c99 -g
 
 all: memanalyze
 
-memanalyze: memanalyze.o ../emulator/memory.o
-	cc $(CFLAGS) -o jmemanalyze memanalyze.o ../emulator/memory.o
+memanalyze: memanalyze.o
+	cc $(CFLAGS) -o jmemanalyze memanalyze.o -ljemulator -L../common
 
 memanalyze.o: memanalyze.c
 	cc $(CFLAGS) -c memanalyze.c

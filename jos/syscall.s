@@ -1,3 +1,5 @@
+#include "jos.h"
+
 ; systemcall - performs the system call requested
 lbl systemcall
 cmp r pr1 a 0x00
@@ -88,4 +90,55 @@ lbl systemcall_strlen_count
 add r nr1 a 1
 ret
 
+lbl systemcall_strcmp
+pop r ar1
+pop r ar2
+pop r ar3
+
+pop r nr1
+pop r nr2
+
+push r ar3
+push r ar2
+push r ar1
+
+; ensure the lengths are the same
+cpy r nr1 r nr3
+cpy r nr2 r nr4
+
+push r nr3
+put r pr1 SYSCALL_STRLEN
+int 0x6a
+
+cpy r nr1 r nr2
+
+push r nr4
+put r pr1 SYSCALL_STRLEN
+int 0x6a
+
+cmp r nr1 r nr2
+
+put r nr1 0x01
+
+jmpc eq l systemcall_strcmp_cmp l systemcall_strcmp_end
+
+; the strings are not of equal length, so they must not be of equal length
+
+push a 0x00
+
+lbl systemcall_strcmp_end
+pop r nr7
+ret
+
+
+lbl systemcall_strcmp_cmp
+jmp l systemcall_strcmp_loop
+
+
+lbl systemcall_strcmp_loop
+pop r nr7
+cmp bpr nr3 bpr nr4
+jmpc ne l systemcall_strcmp_end
+; check for end of string
+cmp bpr nr3 a 0
 
