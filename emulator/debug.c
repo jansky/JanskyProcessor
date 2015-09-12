@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-beakpoint *debug_breakpoint_create(uint32_t offset, uint32_t address)
+breakpoint *debug_breakpoint_create(uint32_t offset, uint32_t address, bool enabled)
 {
 	breakpoint *b = malloc(sizeof(breakpoint));
 
@@ -12,6 +12,7 @@ beakpoint *debug_breakpoint_create(uint32_t offset, uint32_t address)
 
 	b->offset = offset;
 	b->address = address;
+	b->enabled = enabled;
 	b->next = NULL;
 
 	return b;
@@ -73,13 +74,14 @@ bool debug_is_on_breakpoint(breakpoint *root, CPU *cpu)
 {
 	uint32_t i = 0;
 
-	for(; i < debug_breakpoint_get_max(root); i++)
+	for(; i <= debug_breakpoint_get_max(root); i++)
 	{
-		breakpoint *current = debug_breakpoint_get(i);
+		breakpoint *current = debug_breakpoint_get(root, i);
 
 		if(current != NULL)
 		{
-			if(cpu->or1 == current->offset && cpu->ip == current->address)
+			//printf("\nbreakpoint - 0x%x+0x%x", current->offset, current->address);
+			if(current->enabled && cpu->or1 == current->offset && cpu->ip == current->address)
 				return true;
 		}
 	}
@@ -87,11 +89,17 @@ bool debug_is_on_breakpoint(breakpoint *root, CPU *cpu)
 	return false;
 }
 
-bool debug_do_interface(breakpoint *root, CPU *cpu, RAMUNIT *ram)
+breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram)
 {
 	char input[201];
 
 	char *to_parse;
+
+	breakpoint *root = b_root;
+
+	printf("\nWelcome to the debugger.\n\n");
+
+	printf("or1 - 0x%x\tip - 0x%x\n\n", cpu->or1, cpu->ip);
 
 
 
@@ -107,65 +115,516 @@ bool debug_do_interface(breakpoint *root, CPU *cpu, RAMUNIT *ram)
 
 		strncpy(to_parse, input, 200);
 
-		//remove trailing newline
-		strtok(to_parse, "\n");
+		if(to_parse[0] != '\n')
+		{
 
-		//first test for commands with no arguments
-		if(strncmp(to_parse, "help", 200) == 0)
-		{
-			// print help message
-			;
-		}
-		else if(strncmp(to_parse, "continue", 200) == 0)
-		{
-			//exit out of loop
-			break;
-		}
-		else if(strncmp(to_parse, "regdump", 200) == 0)
-		{
-			//we need to print a register dump
-			;
-		}
-		else
-		{
-			//now test for commands with arguments (hooray for strtok)
+			//remove trailing newline
+			strtok(to_parse, "\n");
 
-			char *cmdname = strtok(to_parse, " ");
-
-			if(cmdname)
+			//first test for commands with no arguments
+			if(strncmp(to_parse, "help", 200) == 0)
 			{
-				if(strncmp(cmdname, "break", 5) == 0)
-				{
-					//we need to set a breakpoint
-					;
-				}
-				else if(strncmp(cmdname, "print", 5) == 0)
-				{
-					//we need to print a value
-					;
-				}
-				else if(strncmp(cmdname, "set", 5) == 0)
-				{
-					//we need to set a value
-					;
-				}
+				// print help message
+				;
+			}
+			else if(strncmp(to_parse, "continue", 200) == 0)
+			{
+				//exit out of loop
+				printf("Debugger relinquishing control.\n\n");
+				break;
+			}
+			else if(strncmp(to_parse, "regdump", 200) == 0)
+			{
+				//we need to print a register dump
+				debug_do_regdump(cpu);
+			}
+			else if(strncmp(to_parse, "location", 200) == 0)
+			{
+				//we need to print the current location
+				printf("or1 - 0x%x\tip - 0x%x\n", cpu->or1, cpu->ip);
+			}
+			else if(strncmp(to_parse, "quit", 200) == 0)
+			{
+				//we need to quit
+				printf("\n\nEmulator exiting.\n");
+				exit(0);
+			}
+			else if(strncmp(to_parse, "stacklist", 200) == 0)
+			{
+				//we need to print the contents of the stack
+
+				if(cpu->sp < cpu->sb)
+					fprintf(stderr, "Debug Error: The stack is in an overflow state.\n");
 				else
 				{
-					fprintf(stderr, "Debug Error: Command \'%s\' not recognized.", cmdname);
+					uint32_t sp_new;
+
+					sp_new = cpu->sp;
+
+					while(sp_new + 4 < ram->bytesize)
+					{
+						emu_error = 0;
+						
+						DWORD value = get_dword_at_ram_address(ram, sp_new + 1);
+
+						if(emu_error != 0)
+						{
+							fprintf(stderr, "Debug Error: Memory error.\n");
+						}
+						else
+						{
+							printf("0x%x (%d)\n", value, value);
+						}
+
+						sp_new += 4;
+					}
+				}
+			}					
+			else if(strncmp(to_parse, "breaklist", 200) == 0)
+			{
+				//we need to print a list of breakpoints
+				if(root == NULL)
+					printf("No breakpoints have been set.\n");
+				else
+				{
+					uint32_t i = 0;
+
+					printf("ID\tStatus\tLocation\n\n");
+
+					for(; i <= debug_breakpoint_get_max(root); i++)
+					{
+						breakpoint *current = debug_breakpoint_get(root, i);
+
+						if(current != NULL)
+						{
+							//printf("\nbreakpoint - 0x%x+0x%x", current->offset, current->address);
+							printf("%d\t%d\t0x%x+0x%x\n", i, current->enabled, current->offset, current->address);
+							
+								
+						}
+					}
 				}
 			}
 			else
 			{
-				fprintf(stderr, "Debug Error: Command \'%s\' not recognized.", to_parse);
+				//now test for commands with arguments (hooray for strtok)
+
+				char *cmdname = strtok(to_parse, " ");
+
+				if(cmdname)
+				{
+					if(strcmp(cmdname, "break") == 0)
+					{
+						char *offset;
+						char *address;
+
+						uint32_t o;
+						uint32_t a;
+
+						offset = strtok(NULL, " ");
+
+						if(offset == NULL)
+							fprintf(stderr, "Debug Error: Proper usage: break [offset] [address].\n");
+						else
+						{
+							address = strtok(NULL, " ");
+
+							if(address == NULL)
+								fprintf(stderr, "Debug Error: Proper usage: break [offset] [address].\n");
+							else
+							{
+								if(sscanf(offset, "%x", &o) != 1)
+									fprintf(stderr, "Debug Error: Proper usage: break [offset] [address].\n");
+								else
+								{
+									if(sscanf(address, "%x", &a) != 1)
+										fprintf(stderr, "Debug Error: Proper usage: break [offset] [address].\n");
+									else
+									{
+										if(o+a >= ram->bytesize)
+											fprintf(stderr, "Debug Error: Memory address out of range.\n");
+										else
+										{
+											breakpoint *b_new;
+
+											b_new = debug_breakpoint_create(o, a, true);
+
+											if(b_new == NULL)
+												fprintf(stderr, "Debug Error: Could not create breakpoint.\n");
+											else
+											{
+												if(root == NULL)
+												{
+													root = b_new;
+													printf("Added breakpoint at 0x%x+0x%x\n", o, a);
+												}
+												else
+												{
+													if(!debug_breakpoint_add(root, b_new))
+														fprintf(stderr, "Debug Error: Could not add new breakpoint to list.\n");
+													else
+														printf("Added breakpoint at 0x%x+0x%x\n", o, a);
+												}
+											}
+										}
+									
+									
+								}
+							}
+						}
+					}
+				
+					
+					}
+					else if(strcmp(cmdname, "breakstatus") == 0)
+					{
+						char *id;
+						char *status;
+
+						uint32_t i;
+						uint32_t s;
+
+						id = strtok(NULL, " ");
+
+						if(id == NULL)
+							fprintf(stderr, "Debug Error: Proper usage: breakstatus [id] [status].\n");
+						else
+						{
+							status = strtok(NULL, " ");
+
+							if(status == NULL)
+								fprintf(stderr, "Debug Error: Proper usage: breakstatus [id] [status].\n");
+							else
+							{
+								if(sscanf(id, "%x", &i) != 1)
+									fprintf(stderr, "Debug Error: Proper usage: breakstatus [id] [status].\n");
+								else
+								{
+									if(sscanf(status, "%x", &s) != 1)
+										fprintf(stderr, "Debug Error: Proper usage: breakstatus [id] [status].\n");
+									else
+									{
+										if(s > 1 || s < 0) 
+											fprintf(stderr, "Debug Error: Invalid breakpoint status.\n");
+										else
+										{
+											breakpoint *b_set;
+
+											b_set = debug_breakpoint_get(root, i);
+
+											if(b_set == NULL)
+												fprintf(stderr, "Debug Error: Invalid ID.\n");
+											else
+											{
+												b_set->enabled = (bool)s;
+												printf("Set status of breakpoint %d (0x%x+0x%x) to %d.\n", i, b_set->offset, b_set->address, s);
+											}
+										}
+									
+									
+								}
+							}
+						}
+					}
+				
+					
+					}
+					else if(strncmp(cmdname, "printr", 6) == 0)
+					{
+						//we need to print a value from a register
+						char *reg = strtok(NULL, " ");
+
+						if(reg == NULL)
+							fprintf(stderr, "Debug Error: Register must be specified.\n");
+						else
+						{
+
+							if(strcmp(reg, "ar1") == 0)
+							{
+								printf("ar1 - 0x%x (%d)\n", cpu->ar1, cpu->ar1);
+							}
+							else if(strcmp(reg, "ar2") == 0)
+							{
+								printf("ar2 - 0x%x (%d)\n", cpu->ar2, cpu->ar2);
+							}
+							else if(strcmp(reg, "ar3") == 0)
+							{
+								printf("ar3 - 0x%x (%d)\n", cpu->ar3, cpu->ar3);
+							}
+							else if(strcmp(reg, "ar4") == 0)
+							{
+								printf("ar4 - 0x%x (%d)\n", cpu->ar4, cpu->ar4);
+							}
+							else if(strcmp(reg, "ar5") == 0)
+							{
+								printf("ar5 - 0x%x (%d)\n", cpu->ar5, cpu->ar5);
+							}
+							else if(strcmp(reg, "ip") == 0)
+							{
+								printf("ip - 0x%x (%d)\n", cpu->ip, cpu->ip);
+							}
+							else if(strcmp(reg, "bp") == 0)
+							{
+								printf("bp - 0x%x (%d)\n", cpu->bp, cpu->bp);
+							}
+							else if(strcmp(reg, "sp") == 0)
+							{
+								printf("sp - 0x%x (%d)\n", cpu->sp, cpu->sb);
+							}
+							else if(strcmp(reg, "nr1") == 0)
+							{
+								printf("nr1 - 0x%x (%d)\n", cpu->nr1, cpu->nr1);
+							}
+							else if(strcmp(reg, "nr2") == 0)
+							{
+								printf("nr2 - 0x%x (%d)\n", cpu->nr2, cpu->nr2);
+							}
+							else if(strcmp(reg, "nr3") == 0)
+							{
+								printf("nr3 - 0x%x (%d)\n", cpu->nr3, cpu->nr3);
+							}
+							else if(strcmp(reg, "nr4") == 0)
+							{
+								printf("nr4 - 0x%x (%d)\n", cpu->nr4, cpu->nr4);
+							}
+							else if(strcmp(reg, "nr5") == 0)
+							{
+								printf("nr5 - 0x%x (%d)\n", cpu->nr5, cpu->nr5);
+							}
+							else if(strcmp(reg, "nr6") == 0)
+							{
+								printf("nr6 - 0x%x (%d)\n", cpu->nr6, cpu->nr6);
+							}
+							else if(strcmp(reg, "nr7") == 0)
+							{
+								printf("nr7 - 0x%x (%d)\n", cpu->nr7, cpu->nr7);
+							}
+							else if(strcmp(reg, "or1") == 0)
+							{
+								printf("or1 - 0x%x (%d)\n", cpu->or1, cpu->or1);
+							}
+							else if(strcmp(reg, "cr1") == 0)
+							{
+								printf("cr1 - 0x%x (%d)\n", cpu->cr1, cpu->cr1);
+							}
+							else if(strcmp(reg, "pr1") == 0)
+							{
+								printf("pr1 - 0x%x (%d)\n", cpu->pr1, cpu->pr1);
+							}
+							else if(strcmp(reg, "pr2") == 0)
+							{
+								printf("pr2 - 0x%x (%d)\n", cpu->pr2, cpu->pr2);
+							}
+							else if(strcmp(reg, "flr1") == 0)
+							{
+								printf("flr1 - 0x%x (%d)\n", cpu->flr1, cpu->flr1);
+							}
+							else
+							{
+								fprintf(stderr, "Debug Error: Register \'%s\' is not a valid register.\n", reg);
+							}
+						}
+					}
+					else if(strncmp(cmdname, "memdump", 7) == 0)
+					{
+						char *dumpfile;
+
+						dumpfile = strtok(NULL, " ");
+
+						if(dumpfile == NULL)
+							fprintf(stderr, "Debug Error: Proper usage: memdump [filename]\n");
+						else
+						{
+							if(!write_ram_contents_to_file(ram, dumpfile))
+								fprintf(stderr, "Debug Error: Unable to write RAM dump to \'%s\'.\n", dumpfile);
+							else
+							{
+								fprintf(stderr, "Wrote RAM dump to \'%s\'.\n", dumpfile);
+								
+							}
+						}
+					}
+					else if(strncmp(cmdname, "printm", 6) == 0)
+					{
+						//we need to print a value from memory
+						char *type;
+						char *offset;
+						char *address;
+
+						uint32_t o;
+						uint32_t a;
+						       
+
+						type = strtok(NULL, " ");
+
+						if(type == NULL)
+							fprintf(stderr, "Debug Error: Proper usage: printm [type] [offset] [address]\n");
+						else
+						{
+							offset = strtok(NULL, " ");
+
+							if(offset == NULL)
+								fprintf(stderr, "Debug Error: Proper usage: printm [type] [offset] [address]\n");
+							else
+							{
+								address = strtok(NULL, " ");
+
+								if(address == NULL)
+									fprintf(stderr, "Debug Error: Proper usage: printm [type] [offset] [address]\n");
+								else
+								{
+									//conver to integers
+									
+									if(sscanf(offset, "%x", &o) != 1)
+										fprintf(stderr, "Debug Error: Proper usage: printm [type] [offset] [address]\n");
+									else
+									{
+										if(sscanf(address, "%x", &a) != 1)
+											fprintf(stderr, "Debug Error: Proper usage: printm [type] [offset] [address]\n");
+										else
+										{
+											switch(type[0])
+											{
+											case 's':
+											{
+												if(o+a >= ram->bytesize)
+													fprintf(stderr, "Debug Error: Address out of bounds.\n");
+												else
+												{
+													size_t str_loc;
+
+													str_loc = (size_t)ram->data;
+													str_loc += (size_t)o;
+													str_loc += (size_t)a;
+													printf("string at 0x%x - %s\n", o+a, (char*)(str_loc));
+												}
+
+												break;
+											}
+											case 'd':
+											{
+												emu_error = 0;
+
+												if(o+a >= ram->bytesize)
+													fprintf(stderr, "Debug Error: Address out of bounds.\n");
+
+												uint32_t data = get_dword_at_ram_address(ram, o+a);
+
+												if(emu_error != 0)
+													fprintf(stderr, "Debug Error: Error retrieving data from memory.\n");
+												else
+													printf("DWORD at 0x%x - 0x%x (%d)\n", o+a, data, data);
+
+												break;
+											}
+											case 'b':
+											{
+												emu_error = 0;
+
+												if(o+a >= ram->bytesize)
+													fprintf(stderr, "Debug Error: Address out of bounds.\n");
+
+												uint8_t data = get_byte_at_ram_address(ram, o+a);
+
+												if(emu_error != 0)
+													fprintf(stderr, "Debug Error: Error retrieving data from memory.\n");
+												else
+													printf("BYTE at 0x%x - 0x%x (%d)\n", o+a, data, data);
+
+												break;
+											}
+											case 'c':
+											{
+												emu_error = 0;
+
+												if(o+a >= ram->bytesize)
+													fprintf(stderr, "Debug Error: Address out of bounds.\n");
+
+												uint8_t data = get_byte_at_ram_address(ram, o+a);
+
+												if(emu_error != 0)
+													fprintf(stderr, "Debug Error: Error retrieving data from memory.\n");
+												else
+													printf("character at 0x%x - %c (0x%x)\n", o+a, (char)data, data);
+
+												break;
+											}
+											default:
+											{
+												fprintf(stderr, "Debug Error: Unrecognized type \'%c\'.\n", type[0]);
+											}
+											}
+												
+										}
+									}
+								
+								}
+							}
+						}
+					}					
+					else if(strncmp(cmdname, "set", 5) == 0)
+					{
+						//we need to set a value
+						;
+					}
+					else
+					{
+						fprintf(stderr, "Debug Error: Command \'%s\' not recognized or was passed invalid arguments.\n", cmdname);
+					}
+				}
+				else
+				{
+					fprintf(stderr, "Debug Error: Command \'%s\' not recognized.\n", to_parse);
+				}
 			}
 		}
-				
+
+		free(to_parse);
 
 		
 
 		
 	}
 
-	return true;
+	return root;
+}
+
+void debug_do_regdump(CPU *cpu)
+{
+
+	printf("Register Dump\n\n");
+	
+	printf("ar1 - %x\n", cpu->ar1);
+	printf("ar2 - %x\n", cpu->ar2);
+	printf("ar3 - %x\n", cpu->ar3);
+	printf("ar4 - %x\n", cpu->ar4);
+	printf("ar5 - %x\n", cpu->ar5);
+	printf("ip  - %x\n", cpu->ip);
+	printf("bp  - %x\n", cpu->bp);
+	printf("sp  - %x\n", cpu->sp);
+	printf("sb  - %x\n", cpu->sb);
+	/*
+	printf("fr1 - %f\n", cpu->fr1);
+	printf("fr2 - %f\n", cpu->fr2);
+	printf("fr3 - %f\n", cpu->fr3);
+	printf("fr4 - %f\n", cpu->fr4);
+	printf("fr5 - %f\n", cpu->fr5);\
+	*/
+	printf("nr1 - %x\n", cpu->nr1);
+	printf("nr2 - %x\n", cpu->nr2);
+	printf("nr3 - %x\n", cpu->nr3);
+	printf("nr4 - %x\n", cpu->nr4);
+	printf("nr5 - %x\n", cpu->nr5);
+	printf("nr6 - %x\n", cpu->nr6);
+	printf("nr7 - %x\n", cpu->nr7);
+	printf("or1 - %x\n", cpu->or1);
+	printf("cr1 - %x\n", cpu->cr1);
+	printf("pr1 - %x\n", cpu->pr1);
+	printf("pr2 - %x\n", cpu->pr2);
+	/*
+	printf("fpr1 - %f\n", cpu->fpr1);
+	printf("fpr2 - %f\n", cpu->fpr2);
+	*/
+	printf("flr1 - %x\n", cpu->flr1);
 }
 	

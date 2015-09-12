@@ -7,6 +7,7 @@
 #include "bios.h"
 #include "error.h"
 #include "cpu.h"
+#include "debug.h"
 
 void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *programfile, bool writedump, char *dumpfile, bool regdump, char *root, bool debug);
 
@@ -171,6 +172,8 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 	CPU *cpu = cpu_init();
 	CPURESULT *result;
 	INTEROP_INFO *iinfo;
+
+	breakpoint *b_root = NULL;
 		
 	
 	int instructions_executed = 0;
@@ -248,6 +251,13 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 		exit(9);
 	}
 
+	//if debug is enabled, allow the user a chance to set breakpoints and do other things
+	if(debug)
+		b_root = debug_do_interface(b_root, cpu, ram);
+
+	
+
+	
 	
 
 	
@@ -257,13 +267,35 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 		
 	while(!cpu->halted)
 	{
+
+		//see if we're on a breakpoint
+		if(debug && b_root != NULL)
+		{
+			//printf("\nbreakpoint possible\n");
+			if(debug_is_on_breakpoint(b_root, cpu))
+			{
+				b_root = debug_do_interface(b_root, cpu, ram);
+			}
+		}
+		
 		result = cpu_exec_instruction(cpu, ram, false);
 			
 		if(result->error != CPURESULT_SUCCESS)
 		{
 			//printf("Error result: 0x%x", result->error);
 			if(!do_cpu_interrupt(cpu, ram, (BYTE) result->error))
-				cpu->halted = true;
+			{
+				if(debug)
+				{
+					printf("Last Intruction: %x\tResult: %x\n\n", result->instruction, result->error);
+					b_root = debug_do_interface(b_root, cpu, ram);
+				}
+				else
+				{
+					
+					cpu->halted = true;
+				}
+			}
 		}
 			
 		
@@ -287,11 +319,14 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 	if(writedump)
 	{
 		if(!write_ram_contents_to_file(ram, dumpfile))
+		{
 			fprintf(stderr, "Unable to write RAM dump to \'%s\'.\n", dumpfile);
+			exit(5);
+		}
 		else
 		{
 			fprintf(stderr, "Wrote RAM dump to \'%s\'.\n", dumpfile);
-			exit(5);
+			
 		}
 	}
 		
