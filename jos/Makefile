@@ -27,3 +27,4 @@ strlen-new: strlen-new.s
 clean:
 	rm *.bin	
 	rm *.sp
+	rm *.sp.lbls

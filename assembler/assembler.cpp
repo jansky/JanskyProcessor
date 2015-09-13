@@ -38,7 +38,7 @@ std::vector<Byte> assembler_label_postprocessor(std::vector<Byte> bytes, std::ma
 
 void assembler_print_error_and_exit(std::string error, ErrorInformation e, int exitcode)
 {
-	std::cout << "Error " << e.filename << ":" << e.line_num << ": " << error << std::endl;
+	std::cerr << "Error " << e.filename << ":" << e.line_num << ": " << error << std::endl;
 	exit(exitcode);
 }
 
@@ -130,7 +130,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			}
 			else if(line_tokens[1] == "lo")
 			{
-				//std::cout << "lo location" << std::endl;
+				//std::cerr << "lo location" << std::endl;
 				jumps[(uint32_t)bytes.size() + offset] = line_tokens[2];
 				
 				bytes.push_back(0x0B);
@@ -313,6 +313,10 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			}
 			
 			labels[line_tokens[1]] = lblbytes;
+
+			std::cout << line_tokens[1] << " ";
+
+			printf("0x%x\n", (uint32_t)bytes.size() + offset);
 		}
 	}
 	else if(line_tokens[0] == "ret")
@@ -520,6 +524,17 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 			bytes.push_back(assembler_uint32_string_to_byte_array(line_tokens[1], e)[0]);
 		}
 	}
+	else if(line_tokens[0] == "rawd")
+	{
+		if(line_tokens.size() < 2)
+			assembler_print_error_and_exit("Macro 'rawd' requires 1 operand.", e, 1);
+		else
+		{
+			std::vector<Byte> num_bytes = assembler_uint32_string_to_byte_array(line_tokens[1], e);
+			
+			bytes.insert(bytes.end(), num_bytes.begin(), num_bytes.end());
+		}
+	}
 	else if(line_tokens[0] == "room")
 	{
 		if(line_tokens.size() < 2)
@@ -608,7 +623,7 @@ ParserReturn assembler_parse_line_tokens(std::vector<std::string> line_tokens, E
 	else
 	{
 		//Instruction not defined
-		std::cout << "Error " << e.filename << ":" << e.line_num << ": Instruction \'" << line_tokens[0] << "\' not defined." << std::endl;
+		std::cerr << "Error " << e.filename << ":" << e.line_num << ": Instruction \'" << line_tokens[0] << "\' not defined." << std::endl;
 		exit(1);
 	}
 	
@@ -629,7 +644,7 @@ std::vector<Byte> assembler_uint32_string_to_byte_array(std::string num, ErrorIn
 	}
 	catch(...)
 	{
-		std::cout << "Error " << e.filename << ":" << e.line_num << ": Integer required, not string." << std::endl;
+		std::cerr << "Error " << e.filename << ":" << e.line_num << ": Integer required, not string." << std::endl;
 		exit(1);
 	}
 	
@@ -965,7 +980,7 @@ void write_bytes_to_file(char *filename, std::vector<Byte> bytes)
 	
 	if(fp == NULL)
 	{
-		std::cout << "Error: Unable to open \"" << filename << "\' for writing." << std::endl;
+		std::cerr << "Error: Unable to open \"" << filename << "\' for writing." << std::endl;
 		exit(1);
 	}
 	else
@@ -985,7 +1000,7 @@ std::vector<Byte> assembler_label_postprocessor(std::vector<Byte> bytes, std::ma
 	{
 		if(labels.find(j.second) == labels.end())
 		{
-			std::cout << "Error: \'" << j.second << "\' is an undefined jump location." << std::endl;
+			std::cerr << "Error: \'" << j.second << "\' is an undefined jump location." << std::endl;
 			exit(1);
 		}
 		else
@@ -1018,9 +1033,9 @@ int main(int argc, char **argv)
 	
 	if(argc < 3)
 	{
-		std::cout << "Error: No output and or input files specified." << std::endl;
-		std::cout << "Info: Run assembler as follows: " << argv[0] << " [input file] [ouptut file]" << std::endl;
-		std::cout << "or: " << argv[0] << " -v for version and copyright information" << std::endl;
+		std::cerr << "Error: No output and or input files specified." << std::endl;
+		std::cerr << "Info: Run assembler as follows: " << argv[0] << " [input file] [ouptut file]" << std::endl;
+		std::cerr << "or: " << argv[0] << " -v for version and copyright information" << std::endl;
 		exit(1);
 	}
 	
@@ -1037,7 +1052,7 @@ int main(int argc, char **argv)
 	
 	if(!input_file_stream.good())
 	{
-		std::cout << "Error: Unable to open \'" << input_file << "\' for reading." << std::endl;
+		std::cerr << "Error: Unable to open \'" << input_file << "\' for reading." << std::endl;
 		exit(1);
 	}
 	else

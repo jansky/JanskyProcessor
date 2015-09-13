@@ -205,6 +205,69 @@ breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram)
 					}
 				}
 			}
+			else if(strncmp(to_parse, "interop", 200) == 0)
+			{
+				//we need to print the status of interop
+				if(cpu->iinfo != NULL)
+				{
+					printf("Interop Status\n\n");
+
+					printf("Disk\n");
+					printf("----\n");
+					
+					//disk status
+					if(cpu->iinfo->disk_enabled)
+					{
+						printf("Enabled: yes\nRoot Directory: %s\n", cpu->iinfo->root);
+					}
+					else
+						printf("Enabled: no\n");
+
+					printf("\n");
+				}
+				else
+					fprintf(stderr, "Debug Error: Interop is broken.\n");
+			}
+			else if(strncmp(to_parse, "pop", 200) == 0)
+			{
+				emu_error = 0;
+				
+				uint32_t n;
+
+				n = stack_pop(cpu, ram);
+
+				if(emu_error != 0)
+					fprintf(stderr, "Debug Error: Stack underflow (no value popped, sp remained constant).\n");
+				else
+					printf("value popped - 0x%x (%d)\n", n, n); 
+
+				
+
+				
+			}
+			else if(strncmp(to_parse, "peek", 200) == 0)
+			{
+				emu_error = 0;
+				
+				uint32_t n;
+
+				n = stack_pop(cpu, ram);
+
+				if(emu_error != 0)
+					fprintf(stderr, "Debug Error: Stack underflow (no value popped, sp remained constant).\n");
+				else
+				{
+					printf("stack peek - 0x%x (%d)\n", n, n);
+
+					if(!stack_push(cpu, ram, n))
+						fprintf(stderr, "Debug Error: Stack overflow. The stack is likely broken (you should quit).\n");
+				}
+
+
+				
+
+				
+			}
 			else
 			{
 				//now test for commands with arguments (hooray for strtok)
@@ -276,6 +339,71 @@ breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram)
 				
 					
 					}
+					else if(strcmp(cmdname, "push") == 0)
+					{
+						char *num;
+
+						uint32_t n;
+
+						num = strtok(NULL, " ");
+
+						if(num == NULL)
+						{
+							fprintf(stderr, "Debug Error: Proper usage: push [hexadecimal number].\n");
+						}
+						else
+						{
+							if(sscanf(num, "%x", &n) != 1)
+								fprintf(stderr, "Debug Error: Proper usage: push [hexadecimal number].\n");
+							else
+							{
+								if(!stack_push(cpu, ram, n))
+									fprintf(stderr, "Debug Error: Stack overflow (no value pushed, sp remained constant).\n");
+								else
+									printf("stack push - 0x%x (%d)\n", n, n);
+							}
+						}
+					}
+					else if(strcmp(cmdname, "h2d") == 0)
+					{
+						char *num;
+
+						uint32_t n;
+
+						num = strtok(NULL, " ");
+
+						if(num == NULL)
+						{
+							fprintf(stderr, "Debug Error: Proper usage: h2d [hexadecimal number].\n");
+						}
+						else
+						{
+							if(sscanf(num, "%x", &n) != 1)
+								fprintf(stderr, "Debug Error: Proper usage: h2d [hexadecimal number].\n");
+							else
+								printf("0x%x = %d in decimal.\n", n, n);
+						}
+					}
+					else if(strcmp(cmdname, "d2h") == 0)
+					{
+						char *num;
+
+						uint32_t n;
+
+						num = strtok(NULL, " ");
+
+						if(num == NULL)
+						{
+							fprintf(stderr, "Debug Error: Proper usage: d2h [decimal number].\n");
+						}
+						else
+						{
+							if(sscanf(num, "%d", &n) != 1)
+								fprintf(stderr, "Debug Error: Proper usage: h2d [hexadecimal number].\n");
+							else
+								printf("%d = 0x%x in hexadecimal.\n", n, n);
+						}
+					}
 					else if(strcmp(cmdname, "breakstatus") == 0)
 					{
 						char *id;
@@ -329,7 +457,7 @@ breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram)
 				
 					
 					}
-					else if(strncmp(cmdname, "printr", 6) == 0)
+					else if(strcmp(cmdname, "printr") == 0)
 					{
 						//we need to print a value from a register
 						char *reg = strtok(NULL, " ");
@@ -425,7 +553,157 @@ breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram)
 							}
 						}
 					}
-					else if(strncmp(cmdname, "memdump", 7) == 0)
+					else if(strcmp(cmdname, "setr") == 0)
+					{
+						//we need to set a register's value
+						char *reg = strtok(NULL, " ");
+						char *value;
+
+						uint32_t v;
+
+						if(reg == NULL)
+							fprintf(stderr, "Debug Error: Register must be specified.\n");
+						else
+						{
+							value = strtok(NULL, " ");
+
+							if(value == NULL)
+								fprintf(stderr, "Debug Error: Value must be specified.\n");
+							else
+							{
+								if(sscanf(value, "%x", &v) != 1)
+									fprintf(stderr, "Debug Error: Value must be a number.\n");
+								else
+								{
+
+									if(strcmp(reg, "ar1") == 0)
+									{
+										cpu->ar1 = v;
+										
+										printf("ar1 set to  0x%x (%d)\n", v, v);
+										
+									}
+									else if(strcmp(reg, "ar2") == 0)
+									{
+										cpu->ar2 = v;
+										
+										printf("ar2 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "ar3") == 0)
+									{
+										cpu->ar3 = v;
+										
+										printf("ar3 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "ar4") == 0)
+									{
+										cpu->ar4 = v;
+										
+										printf("ar4 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "ar5") == 0)
+									{
+										cpu->ar5 = v;
+										
+										printf("ar5 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "ip") == 0)
+									{
+										cpu->ip = v;
+										
+										printf("ip set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "bp") == 0)
+									{
+										cpu->bp = v;
+										
+										printf("bp set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "sp") == 0)
+									{
+										cpu->sp = v;
+										
+										printf("sp set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "nr1") == 0)
+									{
+										cpu->nr1 = v;
+										
+										printf("nr1 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "nr2") == 0)
+									{
+										cpu->nr2 = v;
+										
+										printf("nr2 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "nr3") == 0)
+									{
+										cpu->nr3 = v;
+										
+										printf("nr3 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "nr4") == 0)
+									{
+										cpu->nr4 = v;
+										
+										printf("nr4 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "nr5") == 0)
+									{
+										cpu->nr5= v;
+										
+										printf("nr5 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "nr6") == 0)
+									{
+										printf("nr6 - 0x%x (%d)\n", cpu->nr6, cpu->nr6);
+									}
+									else if(strcmp(reg, "nr7") == 0)
+									{
+										cpu->nr7 = v;
+										
+										printf("nr7 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "or1") == 0)
+									{
+										cpu->or1 = v;
+										
+										printf("or1 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "cr1") == 0)
+									{
+										cpu->cr1 = v;
+										
+										printf("cr1 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "pr1") == 0)
+									{
+										cpu->pr1 = v;
+										
+										printf("pr1 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "pr2") == 0)
+									{
+										cpu->pr2 = v;
+										
+										printf("pr2 set to  0x%x (%d)\n", v, v);
+									}
+									else if(strcmp(reg, "flr1") == 0)
+									{
+										cpu->flr1 = v;
+										
+										printf("flr1 set to  0x%x (%d)\n", v, v);
+									}
+									else
+									{
+										fprintf(stderr, "Debug Error: Register \'%s\' is not a valid register.\n", reg);
+									}
+								}
+							}
+						}
+					}
+					else if(strcmp(cmdname, "memdump") == 0)
 					{
 						char *dumpfile;
 
@@ -444,7 +722,7 @@ breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram)
 							}
 						}
 					}
-					else if(strncmp(cmdname, "printm", 6) == 0)
+					else if(strcmp(cmdname, "printm") == 0)
 					{
 						//we need to print a value from memory
 						char *type;
@@ -561,12 +839,163 @@ breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram)
 								}
 							}
 						}
-					}					
-					else if(strncmp(cmdname, "set", 5) == 0)
-					{
-						//we need to set a value
-						;
 					}
+					else if(strcmp(cmdname, "setm") == 0)
+					{
+						//we need to print a value from memory
+						char *type;
+						char *offset;
+						char *address;
+						char *value;
+
+						uint32_t o;
+						uint32_t a;
+						uint32_t v;
+						       
+
+						type = strtok(NULL, " ");
+
+						if(type == NULL)
+							fprintf(stderr, "Debug Error: Proper usage: setm [type] [offset] [address] [value]\n");
+						else
+						{
+							offset = strtok(NULL, " ");
+
+							if(offset == NULL)
+								fprintf(stderr, "Debug Error: Proper usage: setm [type] [offset] [address] [value]\n");
+							else
+							{
+								address = strtok(NULL, " ");
+
+								if(address == NULL)
+									fprintf(stderr, "Debug Error: Proper usage: setm [type] [offset] [address] [value]\n");
+								else
+								{
+									//conver to integers
+									
+									if(sscanf(offset, "%x", &o) != 1)
+										fprintf(stderr, "Debug Error: Proper usage: setm [type] [offset] [address] [value]\n");
+									else
+									{
+										if(sscanf(address, "%x", &a) != 1)
+											fprintf(stderr, "Debug Error: Proper usage: setm [type] [offset] [address] [value]\n");
+										else
+										{
+											value = strtok(NULL, "");
+
+											if(value == NULL)
+												fprintf(stderr, "Debug Error: Proper usage: setm [type] [offset] [address] [value]\n");
+											else
+											{
+												switch(type[0])
+												{
+												case 's':
+												{
+													bool st_error = false;
+													if(o+a+strlen(value)+1 >= ram->bytesize)
+														fprintf(stderr, "Debug Error: Address out of bounds (or string will not fit).\n");
+													else
+													{
+														for(int s_it = 0; s_it <= strlen(value); s_it++)
+														{
+															emu_error = 0;
+
+															set_byte_at_ram_address(ram, o+a+s_it, value[s_it]);
+
+															if(emu_error != 0)
+															{
+																fprintf(stderr, "Debug Error: Memory error.\n");
+																st_error = true;
+															}
+
+														}
+
+														if(!st_error)
+															printf("string at 0x%x set to \"%s\"\n", o+a, value);
+													}
+
+													break;
+												}
+												case 'd':
+												{
+
+													
+													
+													emu_error = 0;
+
+													if(o+a+3 >= ram->bytesize)
+														fprintf(stderr, "Debug Error: Address out of bounds.\n");
+
+													if(sscanf(value, "%x", &v) != 1 )
+														fprintf(stderr, "Debug Error: Proper usage: setm [type] [offset] [address] [value]\n");
+													else
+													{
+
+														set_dword_at_ram_address(ram, o+a, v);
+
+														if(emu_error != 0)
+															fprintf(stderr, "Debug Error: Memory error.\n");
+														else
+															printf("DWORD at 0x%x set to  0x%x (%d)\n", o+a, v, v);
+													}
+
+													break;
+												}
+												case 'b':
+												{
+													
+													
+													emu_error = 0;
+
+													if(o+a+3 >= ram->bytesize)
+														fprintf(stderr, "Debug Error: Address out of bounds.\n");
+
+													if(sscanf(value, "%x", &v) != 1 )
+														fprintf(stderr, "Debug Error: Proper usage: setm [type] [offset] [address] [value]\n");
+													else
+													{
+
+														set_byte_at_ram_address(ram, o+a, (uint8_t)v);
+
+														if(emu_error != 0)
+															fprintf(stderr, "Debug Error: Memory error.\n");
+														else
+															printf("BYTE at 0x%x set to  0x%x (%d)\n", o+a, v, v);
+													}
+
+													break;
+												}
+												case 'c':
+												{
+													emu_error = 0;
+
+													if(o+a >= ram->bytesize)
+														fprintf(stderr, "Debug Error: Address out of bounds.\n");
+
+													set_byte_at_ram_address(ram, o+a, (uint8_t)value[0]);
+
+													if(emu_error != 0)
+														fprintf(stderr, "Debug Error: Memory error.\n");
+													else
+														printf("character at 0x%x set to %c  (0x%x)\n", o+a, value[0], (uint8_t)value[0]);
+												
+
+													break;
+												}
+												default:
+												{
+													fprintf(stderr, "Debug Error: Unrecognized type \'%c\'.\n", type[0]);
+												}
+												}
+											}
+												
+										}
+									}
+								
+								}
+							}
+						}
+					}			       
 					else
 					{
 						fprintf(stderr, "Debug Error: Command \'%s\' not recognized or was passed invalid arguments.\n", cmdname);

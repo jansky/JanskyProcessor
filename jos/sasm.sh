@@ -13,7 +13,7 @@ if test "$?" -ne 0; then
     exit 1
 fi
 
-../assembler/jassembler "$sansextension".sp "$sansextension".o
+../assembler/jassembler "$sansextension".sp "$sansextension".o > "$sansextension".sp.lbls
 
 exit "$?"
 
