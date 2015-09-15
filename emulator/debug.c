@@ -239,7 +239,7 @@ breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram)
 				if(emu_error != 0)
 					fprintf(stderr, "Debug Error: Stack underflow (no value popped, sp remained constant).\n");
 				else
-					printf("value popped - 0x%x (%d)\n", n, n); 
+					printf("stack pop - 0x%x (%d)\n", n, n);
 
 				
 

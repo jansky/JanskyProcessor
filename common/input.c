@@ -76,6 +76,49 @@ bool input_string(CPU *cpu, RAMUNIT *ram, DWORD location, DWORD maxsize)
 	return true;
 }
 
+uint32_t input_number(CPU *cpu)
+{
+	emu_error = 0;
+	cpu->ar5 = 0;
+	uint32_t n = 0;
+
+	char *nraw = malloc(200);
+
+	if(nraw == NULL)
+	{
+		emu_error = EMUERR_ALLOCERROR;
+		return n;
+	}
+
+	if(!fgets(nraw, 199, stdin))
+	{
+		//non-fatal error
+		if(cpu != NULL)
+			cpu->ar5 = 0x01;
+		else
+			emu_error = EMUERR_UNKNOWN;
+		
+		return n;
+	}
+
+	//remove trailing newline
+	strtok(nraw, "\n");
+
+	if(sscanf(nraw, "%d", &n) != 1)
+	{
+		//non-fatal error
+		if(cpu != NULL)
+			cpu->ar5 = 0x02;
+		else
+			emu_error = EMUERR_INVALIDINPUT;
+		
+		return n;
+	}
+	
+
+	return n;
+}
+
 bool input_dword(CPU *cpu, RAMUNIT *ram, DWORD location)
 {
 	emu_error = 0;
@@ -91,7 +134,20 @@ bool input_dword(CPU *cpu, RAMUNIT *ram, DWORD location)
 
 	uint32_t input = 0;
 
-	scanf("%d", &input);
+	input = input_number(cpu);
+
+	if(emu_error != 0)
+		return false;
+
+	if(cpu->ar5 != 0)
+	{
+		//set non-fatal error
+		cpu->ar5++;
+		return true;
+	}
+		       
+
+	
 
 	set_dword_at_ram_address(ram, location, input);
 
@@ -116,7 +172,17 @@ bool input_byte(CPU *cpu, RAMUNIT *ram, DWORD location)
 
 	uint32_t input = 0;
 
-	scanf("%d", &input);
+	input = input_number(cpu);
+
+	if(emu_error != 0)
+		return false;
+
+	if(cpu->ar5 != 0)
+	{
+		//set non-fatal error
+		cpu->ar5++;
+		return true;
+	}
 	
 	set_byte_at_ram_address(ram, location, (uint8_t)input);
 

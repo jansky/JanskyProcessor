@@ -13,5 +13,7 @@ static int emu_error = 0;
  #define EMUERR_ALLOCERROR 1;
  #define EMUERR_OUTOFRANGE 2;
  #define EMUERR_ILLEGALOPERATION 3;
+ #define EMUERR_INVALIDINPUT 4;
+ #define EMUERR_UNKNOWN 5;
  
  
