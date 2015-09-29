@@ -1,0 +1,55 @@
+\documentclass[12pt,letterpaper,titlepage,twoside]{book}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{float}
+\author{Ian Duncan}
+\title{The Emulator Project}
+\begin{document}
+\maketitle
+\newpage
+\chapter{An Overview}
+\section{What is the Emulator Project?}
+It is not a secret that systems programming and operating system development are not easy things to learn and do. The inherent complexities of these subjects are made worse by the current platform of choice: the personal computer with an x86 processor. There are many parts of this platform which make it difficult for beginners. This is where the emulator project comes in. The goal of the emulator project (which is still in need of a decent name) is to provide an easier environment for learning the concepts of systems programming and OS development. The emulator project provides a set of tools for this task: an emulator with a built-in interactive debugger, an assembler, disassembler, and a memory dump analyzer. While not the best or most-polished set of tools ever developed, they are enough to get the job done.
+
+The bulk of the simplifications of the emulator are included in the "firmware", referred to as the BIOS. Tasks such as printing strings and numbers can be accomplished by simply providing the pointer to a null-terminated string in the emulator's memory or the number itself. The BIOS also contains what is referred to as the \textit{interop module}. This module allows for easy access of files on the actual disk. In this way the emulator project can also be viewed as a tool to teach assembly-language programming. BIOS methods which provide finer control and emulate real hardware (e.g. disks and displays) are planned.
+\chapter{User's Guide}
+\section{Getting and Compiling the Emulator Project Code}
+The emulator project is open source, and licensed under the MIT license. It is distributed in source code form only in a GitHub repository. This book makes the assumption you are using a UNIX-like environment (e.g. Linux, Free-BSD, Cygwin). Out-of-the-box Windows support is not planned.
+
+With that said we can move on to downloading and compiling the code. In order to download the source code from the GitHub repository you will need to ensure Git is installed. Other than this, ensure that you have a C compiler and a \textbf{modern} C++ compiler (i.e. one that really supports C++11), otherwise you will not be able to make use of the assembler. I have had problems with this on MinGW in the past, so I recommend just using Cygwin if you use Windows.
+
+Once you are sure everything is in order, simply run the following to get and compile the emulator project code:
+
+\begin{verbatim}
+$ git clone https://github.com/jansky/JanskyProcessor.git
+$ cd JanskyProcessor
+$ make
+$ sudo make install
+\end{verbatim}
+
+As a final note, if you are unfamiliar with Git, the command to update the repository to the most recent version is \verb|git pull origin master|.
+\section{Using the Emulator}
+The emulator is invoked as \verb|jemulator|, and takes a variety of command-line options, only a few of which are required to actually use it. Many options only change default values. If you are satisfied with these values, it is not necessary to specify them on the command line.
+
+The only required switch is the \verb|-p| or \verb|--program| switch which specifies the location of the program you wish to execute. Thus in order, to launch the emulator with default options with the program \verb|program.bin|, you would run \verb|jemulator -p program.bin| at the command line.
+
+Of course, sometimes the default settings are not what you want. The table below lists the options and flags that can be set at the command line. Note that all numbers must be specified in hexadecimal.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{3cm}|p{6cm}|}
+\hline  \textbf{Option} & \textbf{Purpose}   \\ 
+\hline  \verb|--no-reg-dump| & Disables the register dump that normally takes place after execution is finished. \\ 
+\hline  \verb|--no-mem-dump| & Tells the emulator not to produce the default memory dump that takes place after execution is finished. \\
+\hline  \verb|--version| & Prints version and licensing information. \\
+\hline 
+\end{tabular} 
+\caption{List of command line options for the emulator}
+\end{table}
+
+
+\end{document}
