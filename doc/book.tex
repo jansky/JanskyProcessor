@@ -5,7 +5,7 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{listings}
-\usepackage{float}
+\usepackage{longtable}
 \author{Ian Duncan}
 \title{The Emulator Project}
 \begin{document}
@@ -39,17 +39,71 @@ The only required switch is the \verb|-p| or \verb|--program| switch which speci
 
 Of course, sometimes the default settings are not what you want. The table below lists the options and flags that can be set at the command line. Note that all numbers must be specified in hexadecimal.
 
-\begin{table}[H]
-\centering
-\begin{tabular}{|p{3cm}|p{6cm}|}
+\begin{longtable}{|p{6cm}|p{6cm}|}
 \hline  \textbf{Option} & \textbf{Purpose}   \\ 
 \hline  \verb|--no-reg-dump| & Disables the register dump that normally takes place after execution is finished. \\ 
 \hline  \verb|--no-mem-dump| & Tells the emulator not to produce the default memory dump that takes place after execution is finished. \\
 \hline  \verb|--version| & Prints version and licensing information. \\
+\hline  \verb|--debug| & Enables the interactive debugger \\
+\hline  \verb|--program, -p [Program file]| & Specifies the program file for the emulator to load \\
+\hline  \verb|--memsize [RAM size]| & Specifies the size of the emulator's RAM in bytes. This value must at least \verb|0x100000| (1 MB). If this value is not specified the size will be \verb|0xA00000| (10 MB). \\
+\hline  \verb|--stacksize [Stack size]| & Specifies the number of stack elements. This value must be at least \verb|0x96|. By default it is \verb|0x100|. \\
+\hline  \verb|--loadat [Address]| & Specifies the memory address to load the program into. By default it is \verb|0x400|. \\
+\hline  \verb|--dumpfile [filename]| & Specifies the file that the memory dump will be written to. If this value is not specified it will be written out to \verb|mem.dmp|. \\
+\hline  \verb|--rootdir [directory]| & Specifies the root directory for all interop disk operations. This value must be specified to enable interop for disk operations. Do not append a trailing slash. \\
+\hline 
+\end{longtable} 
+\section{Using the Assembler}
+The assembler is much simpler in terms of usage. It is invoked with the command \verb|jassembler| and always takes two arguments, the assembly file and the output file. For example, if you wanted to assemble \verb|program.s| to \verb|program.bin|, you would run \verb|jassembler program.s program.bin|.
+
+The assembler will output any errors, as well as the location of all labels for debugging purposes. For example, running the assembler on the \verb|shell.s| file in the \verb|jos| directory produces the following output:
+
+\begin{verbatim}
+shellloop 0x25
+end 0xee
+error_input 0x116
+error_exec 0x141
+res1 0x1a2
+res2 0x1ae
+res3 0x1b2
+res4 0x27c
+res5 0x2a3
+res6 0x2b8
+\end{verbatim}
+
+It is important to note that at the moment the assembler does not support the linking of binary files or the inclusion of other files through the use of an include-style directive. If you wish to do the latter, the \verb|sasm.sh| for \textit{\textbf{s}mart \textbf{as}se\textbf{m}bler} script that comes with jOS (look in the \verb|jos| directory) may be helpful. It takes one argument, the assembly code file, and runs this through the C preprocessor and finally the assembler, producing a \verb|.o| file of the same name. For example, running \verb|./sasm.sh program.s| would produce a binary file called \verb|program.o|. Despite the extension, the \verb|.o| file produced does not contain relocatable code like a normal object file. Rather, it is simply output from the assembler. No tools at the moment support the linking of binary files.
+\section{Using the Disassembler}
+The disassembler is invoked in a manner similar to the assembler. To run the disassembler on a binary file, run \verb|jdisassembler program.bin disassembled.s|. If you would rather the disassembler output to standard output than a file, run \verb|jdisassembler program.bin STDOUT| (case is important).
+
+At the moment, the disassembler has not been updated for all of the new memory and register location types, but is still helpful as it outputs the location of each instruction as a comment for debugging purposes.
+\section{Using the Memory Dump Analyzer}
+While not as important any more due to the presence of an interactive debugger in the emulator itself, the memory dump analyzer is still a useful tool. It operates on the memory dumps produced by the emulator after execution has finished. To run the memory dump analyze, run \verb|jmemanalyze dumpfile.dmp|. The memory dump analyzer is an interactive program. After starting up, it should greet you with a prompt.
+
+\begin{verbatim}
+Allocated 10485760 bytes of RAM.
+% 
+\end{verbatim}
+
+At the prompt, enter the type and address of the value you want to view. The types are as follows.
+
+\begin{tabular}{|c|c|}
+\hline  \textbf{Type} & \textbf{Value} \\ 
+\hline  b & 8 bit integer \\ 
+\hline  w & 16 bit integer \\
+\hline  d & 32 bit integer \\
 \hline 
 \end{tabular} 
-\caption{List of command line options for the emulator}
-\end{table}
 
+After the type, you must specify the memory address in hexadecimal. Thus, an example session looks like
 
+\begin{verbatim}
+% b 400
+BYTE 0x400: 0xf, 15
+% b 401
+BYTE 0x401: 0x2, 2
+% d 500
+DWORD 0x500: 0x12000000, 301989888
+\end{verbatim}
+
+To quit enter \verb|q 0| at the prompt.
 \end{document}
