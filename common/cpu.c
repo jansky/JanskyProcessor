@@ -238,49 +238,49 @@ DWORD get_value(CPU *cpu, RAMUNIT *ram, BYTE loc_id, DWORD location)
 	
 	switch(loc_id)
 	{
-	case 0x00:
+	case 0x00: //r*
 		return get_value_from_register(cpu, location);
 		break;
-	case 0x01:
+	case 0x01: //m
 		return get_dword_at_ram_address(ram, location);
 		break;
-	case 0x02:
+	case 0x02: //a
 		return location;
 		break;
-	case 0x03:
+	case 0x03: //pr*
 		return get_dword_at_ram_address(ram, get_value_from_register(cpu, location));
 		break;
-	case 0x04:
+	case 0x04: //pm
 		return get_dword_at_ram_address(ram, get_dword_at_ram_address(ram, location));
 		break;
-	case 0x05:
+	case 0x05: //br*
 		return (BYTE)get_value_from_register(cpu, location);
 		break;
-	case 0x06:
+	case 0x06: //bm
 		return get_byte_at_ram_address(ram, location);
 		break;
-	case 0x07:
+	case 0x07: //ba
 		return (BYTE)location;
 		break;
-	case 0x08:
+	case 0x08: //bpr*
 		return get_byte_at_ram_address(ram, get_value_from_register(cpu, location));
 		break;
-	case 0x09:
+	case 0x09: //bpm
 		return get_byte_at_ram_address(ram, get_dword_at_ram_address(ram, location));
 		break;
-	case 0x0A:
+	case 0x0A: //po
 		return get_dword_at_ram_address(ram, offset+location);
 		break;
-	case 0x0B:
+	case 0x0B: //o
 	{
 		
 		return (offset+location);
 		break;
 	}
-	case 0x0C:
+	case 0x0C: //bpo
 		return get_byte_at_ram_address(ram, offset+location);
 		break;
-	case 0x0D:
+	case 0x0D: //bo
 		return (BYTE)(offset+location);
 		break;
 	default:
