@@ -1,6 +1,7 @@
 #include "sasm.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 int sasm_write_byte(FILE *fp, uint8_t byte)
 {
@@ -30,6 +31,14 @@ int sasm_write_dword(FILE *fp, uint32_t dword)
     *dword_ptr = dword;
     
     return fwrite(dword_ptr, sizeof(uint32_t), 1, fp);
+}
+
+int sasm_write_string(FILE *fp, char *string)
+{
+    if(fp == NULL || string == NULL)
+        return 0;
+        
+    return fwrite(string, sizeof(char), strlen(string), fp); // Not null terminated
 }
     
     

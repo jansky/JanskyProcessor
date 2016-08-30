@@ -7,19 +7,19 @@ jos.o: jos.s syscall.s dta.s
 	./sasm.sh jos.s
 
 shell: shell.s
-	../assembler/jassembler shell.s shell.bin
+	../sasm/jsasm shell.s shell.bin
 
 pow: pow.s
-	../assembler/jassembler pow.s pow.bin
+	../sasm/jsasm pow.s pow.bin
 
 exit: exit.s
-	../assembler/jassembler exit.s exit.bin
+	../sasm/jsasm exit.s exit.bin
 
 strlen: strlen.s
-	../assembler/jassembler  strlen.s strlen.bin
+	../sasm/jsasm  strlen.s strlen.bin
 
 hello: hello.s
-	../assembler/jassembler hello.s hello.bin
+	../sasm/jsasm hello.s hello.bin
 
 strlen-new: strlen-new.s
 	./sasm.sh strlen-new.s

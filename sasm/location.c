@@ -8,34 +8,34 @@ uint32_t get_register_id_from_string(char *reg)
     if(reg == NULL)
         return 0x1111;
         
-    if(strcmp(reg, "ar1")) return 0x00;
-    if(strcmp(reg, "ar2")) return 0x01;
-    if(strcmp(reg, "ar3")) return 0x02;
-    if(strcmp(reg, "ar4")) return 0x03;
-    if(strcmp(reg, "ar5")) return 0x04;
+    if(strcmp(reg, "ar1") == 0) return 0x00;
+    if(strcmp(reg, "ar2") == 0) return 0x01;
+    if(strcmp(reg, "ar3") == 0) return 0x02;
+    if(strcmp(reg, "ar4") == 0) return 0x03;
+    if(strcmp(reg, "ar5") == 0) return 0x04;
     
-    if(strcmp(reg, "ip")) return 0x05;
-    if(strcmp(reg, "bp")) return 0x06;
+    if(strcmp(reg, "ip") == 0) return 0x05;
+    if(strcmp(reg, "bp") == 0) return 0x06;
     
-    if(strcmp(reg, "sp")) return 0x07;
-    if(strcmp(reg, "sb")) return 0x08;
+    if(strcmp(reg, "sp") == 0) return 0x07;
+    if(strcmp(reg, "sb") == 0) return 0x08;
     
-    if(strcmp(reg, "cr1")) return 0x0A;
+    if(strcmp(reg, "cr1") == 0) return 0x0A;
     
-    if(strcmp(reg, "pr1")) return 0x0B;
-    if(strcmp(reg, "pr2")) return 0x0C;
+    if(strcmp(reg, "pr1") == 0) return 0x0B;
+    if(strcmp(reg, "pr2") == 0) return 0x0C;
     
-    if(strcmp(reg, "flr1")) return 0x0F;
+    if(strcmp(reg, "flr1") == 0) return 0x0F;
     
-    if(strcmp(reg, "nr1")) return 0x10;
-    if(strcmp(reg, "nr2")) return 0x11;
-    if(strcmp(reg, "nr3")) return 0x12;
-    if(strcmp(reg, "nr4")) return 0x13;
-    if(strcmp(reg, "nr5")) return 0x14;
-    if(strcmp(reg, "nr6")) return 0x15;
-    if(strcmp(reg, "nr7")) return 0x16;
+    if(strcmp(reg, "nr1") == 0) return 0x10;
+    if(strcmp(reg, "nr2") == 0) return 0x11;
+    if(strcmp(reg, "nr3") == 0) return 0x12;
+    if(strcmp(reg, "nr4") == 0) return 0x13;
+    if(strcmp(reg, "nr5") == 0) return 0x14;
+    if(strcmp(reg, "nr6") == 0) return 0x15;
+    if(strcmp(reg, "nr7") == 0) return 0x16;
     
-    if(strcmp(reg, "or1")) return 0x17;
+    if(strcmp(reg, "or1") == 0) return 0x17;
     
     return 0x2222; // Invalid register name
 }
@@ -61,7 +61,7 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
     // support loctype 'l' for 'la' for backwards compatibility
     if(strcmp(loctype, "l") == 0)
     {
-        if(sasm_write_byte(0x02) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x02) != 1) return SASM_ERROR_IOERROR;
         
         // Add entry to location to fill list
         long location = ftell(fp); // Get position of where to fill in location
@@ -77,7 +77,7 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(!sasm_location_to_fill_add(root, new_ltf)) return SASM_ERROR_LABELERROR; // Add new location to fill to list
         
         // Fill in the location dword with zeros, it will be filled in later
-        if(sasm_write_dword(0x00000000) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_dword(fp,0x00000000) != 1) return SASM_ERROR_IOERROR;
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
@@ -85,7 +85,7 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
     //Look for loctypes that are incompatible with labels
     if(strcmp(loctype, "r") == 0)
     {
-        if(sasm_write_byte(0x00) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x00) != 1) return SASM_ERROR_IOERROR;
         
         uint32_t reg = get_register_id_from_string(locarg);
         
@@ -95,14 +95,14 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(reg == 0x2222) // invalid register type
             return SASM_ERROR_REGISTERINVALID;
             
-        if(sasm_write_dword(reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
+        if(sasm_write_dword(fp,reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
     
     if(strcmp(loctype, "pr") == 0)
     {
-        if(sasm_write_byte(0x03) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x03) != 1) return SASM_ERROR_IOERROR;
         
         uint32_t reg = get_register_id_from_string(locarg);
         
@@ -112,14 +112,14 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(reg == 0x2222) // invalid register type
             return SASM_ERROR_REGISTERINVALID;
             
-        if(sasm_write_dword(reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
+        if(sasm_write_dword(fp,reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
     
     if(strcmp(loctype, "br") == 0)
     {
-        if(sasm_write_byte(0x05) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x05) != 1) return SASM_ERROR_IOERROR;
         
         uint32_t reg = get_register_id_from_string(locarg);
         
@@ -129,14 +129,14 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(reg == 0x2222) // invalid register type
             return SASM_ERROR_REGISTERINVALID;
             
-        if(sasm_write_dword(reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
+        if(sasm_write_dword(fp,reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
     
     if(strcmp(loctype, "bpr") == 0)
     {
-        if(sasm_write_byte(0x08) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x08) != 1) return SASM_ERROR_IOERROR;
         
         uint32_t reg = get_register_id_from_string(locarg);
         
@@ -146,7 +146,7 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(reg == 0x2222) // invalid register type
             return SASM_ERROR_REGISTERINVALID;
             
-        if(sasm_write_dword(reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
+        if(sasm_write_dword(fp,reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
@@ -171,43 +171,43 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
     // They all take either number arguments or labels
     if(strcmp(loctype_to_parse, "m") == 0)
     {
-        if(sasm_write_byte(0x01) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x01) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "a") == 0)
     {
-        if(sasm_write_byte(0x02) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x02) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "pm") == 0)
     {
-        if(sasm_write_byte(0x04) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x04) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "bm") == 0)
     {
-        if(sasm_write_byte(0x06) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x06) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "ba") == 0)
     {
-        if(sasm_write_byte(0x07) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x07) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "bpm") == 0)
     {
-        if(sasm_write_byte(0x09) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x09) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "po") == 0)
     {
-        if(sasm_write_byte(0x0A) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x0A) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "o") == 0)
     {
-        if(sasm_write_byte(0x0B) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x0B) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "bpo") == 0)
     {
-        if(sasm_write_byte(0x0C) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x0C) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "bo") == 0)
     {
-        if(sasm_write_byte(0x0D) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x0D) != 1) return SASM_ERROR_IOERROR;
     }
     else
     {
@@ -232,7 +232,7 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(!sasm_location_to_fill_add(root, new_ltf)) return SASM_ERROR_LABELERROR; // Add new location to fill to list
         
         // Fill in the location dword with zeros, it will be filled in later
-        if(sasm_write_dword(0x00000000) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_dword(fp,0x00000000) != 1) return SASM_ERROR_IOERROR;
         
         return SASM_ERROR_NOERROR; // Operation was a success
      }
@@ -243,7 +243,7 @@ int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(sasm_error != 0)
             return SASM_ERROR_NUMBERERROR;
         
-        if(sasm_write_dword(number) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_dword(fp,number) != 1) return SASM_ERROR_IOERROR;
         
         return SASM_ERROR_NOERROR; // Operation was a success
      }
@@ -272,7 +272,7 @@ int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
     //Look for loctypes that are incompatible with labels
     if(strcmp(loctype, "r") == 0)
     {
-        if(sasm_write_byte(0x00) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x00) != 1) return SASM_ERROR_IOERROR;
         
         uint32_t reg = get_register_id_from_string(locarg);
         
@@ -282,14 +282,14 @@ int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(reg == 0x2222) // invalid register type
             return SASM_ERROR_REGISTERINVALID;
             
-        if(sasm_write_dword(reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
+        if(sasm_write_dword(fp,reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
     
     if(strcmp(loctype, "pr") == 0)
     {
-        if(sasm_write_byte(0x03) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x03) != 1) return SASM_ERROR_IOERROR;
         
         uint32_t reg = get_register_id_from_string(locarg);
         
@@ -299,14 +299,14 @@ int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(reg == 0x2222) // invalid register type
             return SASM_ERROR_REGISTERINVALID;
             
-        if(sasm_write_dword(reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
+        if(sasm_write_dword(fp,reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
     
     if(strcmp(loctype, "br") == 0)
     {
-        if(sasm_write_byte(0x05) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x05) != 1) return SASM_ERROR_IOERROR;
         
         uint32_t reg = get_register_id_from_string(locarg);
         
@@ -316,14 +316,14 @@ int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(reg == 0x2222) // invalid register type
             return SASM_ERROR_REGISTERINVALID;
             
-        if(sasm_write_dword(reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
+        if(sasm_write_dword(fp,reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
     
     if(strcmp(loctype, "bpr") == 0)
     {
-        if(sasm_write_byte(0x08) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x08) != 1) return SASM_ERROR_IOERROR;
         
         uint32_t reg = get_register_id_from_string(locarg);
         
@@ -333,7 +333,7 @@ int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(reg == 0x2222) // invalid register type
             return SASM_ERROR_REGISTERINVALID;
             
-        if(sasm_write_dword(reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
+        if(sasm_write_dword(fp,reg) != 1) return SASM_ERROR_IOERROR; // Write register ID
         
         return SASM_ERROR_NOERROR; // Operation was a success
     }
@@ -358,27 +358,27 @@ int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
     // They all take either number arguments or labels
     if(strcmp(loctype_to_parse, "m") == 0)
     {
-        if(sasm_write_byte(0x01) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x01) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "pm") == 0)
     {
-        if(sasm_write_byte(0x04) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x04) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "bm") == 0)
     {
-        if(sasm_write_byte(0x06) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x06) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "bpm") == 0)
     {
-        if(sasm_write_byte(0x09) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x09) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "po") == 0)
     {
-        if(sasm_write_byte(0x0A) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x0A) != 1) return SASM_ERROR_IOERROR;
     }
     else if(strcmp(loctype_to_parse, "bpo") == 0)
     {
-        if(sasm_write_byte(0x0C) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_byte(fp,0x0C) != 1) return SASM_ERROR_IOERROR;
     }
     else
     {
@@ -403,7 +403,7 @@ int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(!sasm_location_to_fill_add(root, new_ltf)) return SASM_ERROR_LABELERROR; // Add new location to fill to list
         
         // Fill in the location dword with zeros, it will be filled in later
-        if(sasm_write_dword(0x00000000) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_dword(fp,0x00000000) != 1) return SASM_ERROR_IOERROR;
         
         return SASM_ERROR_NOERROR; // Operation was a success
      }
@@ -414,7 +414,7 @@ int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationT
         if(sasm_error != 0)
             return SASM_ERROR_NUMBERERROR;
         
-        if(sasm_write_dword(number) != 1) return SASM_ERROR_IOERROR;
+        if(sasm_write_dword(fp,number) != 1) return SASM_ERROR_IOERROR;
         
         return SASM_ERROR_NOERROR; // Operation was a success
      }
