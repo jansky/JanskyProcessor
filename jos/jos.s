@@ -134,8 +134,5 @@ put r or1 0x400
 cpy l systemcall r bp
 iret
 
-#include "syscall.s"
-#include "dta.s"
-
 
 

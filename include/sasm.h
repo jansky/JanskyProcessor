@@ -1,4 +1,5 @@
 #pragma once
+#define _POSIX_C_SOURCE 200809L
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -23,6 +24,8 @@ typedef struct SASMLocationLabel
 {
     char *name;
     uint32_t location;
+
+    bool global;
     
     struct SASMLocationLabel *next;
 } SASMLocationLabel;
@@ -37,7 +40,7 @@ typedef struct SASMLocationToFill
 
 /* Location Label Functions */
 
-SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location);
+SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location, bool global);
 int sasm_location_label_get_max(SASMLocationLabel *root);
 SASMLocationLabel *sasm_location_label_get(SASMLocationLabel *root, int id);
 bool sasm_location_label_add(SASMLocationLabel *root, SASMLocationLabel *new);
@@ -50,6 +53,10 @@ bool sasm_location_to_fill_add(SASMLocationToFill *root, SASMLocationToFill *new
 
 int sasm_fill_in_labels(FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill *ltf_root);
 
+int sasm_location_label_serialize(FILE *fp, SASMLocationLabel *ll);
+int sasm_location_to_fill_serialize(FILE *fp, SASMLocationToFill *ltf);
+
+
 /* Assembler Functions */
 
 int sasm_is_string_empty(const char *s);
@@ -58,9 +65,13 @@ uint32_t sasm_parse_number(char *number);
 
 int sasm_write_byte(FILE *fp, uint8_t byte);
 
+int sasm_write_word(FILE *fp, uint16_t word);
+
 int sasm_write_dword(FILE *fp, uint32_t dword);
 
 int sasm_write_string(FILE *fp, char *string);
+
+int sasm_write_object_file(FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill *ltf_root, char *code, size_t code_length);
 
 int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationToFill *root);
 int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationToFill *root);

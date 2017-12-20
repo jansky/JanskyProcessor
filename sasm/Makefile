@@ -1,4 +1,4 @@
-CFLAGS = -I../include -std=c99 -g
+CFLAGS = -I../include -std=c11 -g
 
 all: sasm
 

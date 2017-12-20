@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location)
+SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location, bool global)
 {
 
     SASMLocationLabel *new = malloc(sizeof(SASMLocationLabel));
@@ -25,6 +25,9 @@ SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location)
     {
         new->name = NULL;
     }
+
+    new->global = global;
+
     new->location = location;
     
     return new;
@@ -216,9 +219,7 @@ int sasm_fill_in_labels(FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill
     while(next != NULL)
     {
         if(next->name != NULL) // Root element's name is always NULL
-        {
-            
-            
+        {        
             SASMLocationLabel *location = sasm_location_label_get_by_name(ll_root, next->name);
             
             if(location == NULL)
@@ -235,4 +236,61 @@ int sasm_fill_in_labels(FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill
      }
      
      return SASM_ERROR_NOERROR;
+}
+
+int sasm_location_label_serialize(FILE *fp, SASMLocationLabel *ll)
+{
+    if(fp == NULL)
+        return SASM_ERROR_IOERROR;
+    
+    if(ll == NULL)
+        return SASM_ERROR_LABELERROR;
+    
+    if(ll->name == NULL)
+        return SASM_ERROR_LABELERROR;
+    
+    /* The format for label serialization:
+
+        uint16_t Name Length
+        char*    Name (No Null Terminator)
+        uint8_t     1 if Global, 0 if Local
+        uint32_t Location
+    */
+
+    if(sasm_write_word(fp, (uint16_t)strlen(ll->name)) != 1) return SASM_ERROR_IOERROR;
+
+    if(fwrite(ll->name, sizeof(char), strlen(ll->name), fp) != strlen(ll->name)) return SASM_ERROR_IOERROR;
+
+    if(sasm_write_byte(fp, (uint8_t)ll->global) != 1) return SASM_ERROR_IOERROR;
+
+    if(sasm_write_dword(fp, ll->location) != 1) return SASM_ERROR_IOERROR;
+
+    return SASM_ERROR_NOERROR;
+}
+
+int sasm_location_to_fill_serialize(FILE *fp, SASMLocationToFill *ltf)
+{
+    if(fp == NULL)
+        return SASM_ERROR_IOERROR;
+    
+    if(ltf == NULL)
+        return SASM_ERROR_LABELERROR;
+    
+    if(ltf->name == NULL)
+        return SASM_ERROR_LABELERROR;
+    
+    /* The format for location-to-fill serialization:
+
+        uint16_t Name Length
+        char*    Name (No Null Terminator)
+        uint32_t Location
+    */
+
+    if(sasm_write_word(fp, (uint16_t)strlen(ltf->name)) != 1) return SASM_ERROR_IOERROR;
+
+    if(fwrite(ltf->name, sizeof(char), strlen(ltf->name), fp) != strlen(ltf->name)) return SASM_ERROR_IOERROR;
+
+    if(sasm_write_dword(fp, ltf->location) != 1) return SASM_ERROR_IOERROR;
+
+    return SASM_ERROR_NOERROR;
 }

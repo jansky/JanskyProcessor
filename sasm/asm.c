@@ -328,12 +328,35 @@ int sasm_assemble_line(char *line, FILE *fp, SASMLocationLabel *ll_root, SASMLoc
             if(location == -1)
                 return SASM_ERROR_IOERROR;
             
-            SASMLocationLabel *new = sasm_location_label_create(label_name, (uint32_t)location);
+            SASMLocationLabel *new = sasm_location_label_create(label_name, (uint32_t)location, false);
             
             if(!sasm_location_label_add(ll_root, new)) return SASM_ERROR_LABELERROR;
             
             // Output label location
             printf("%s %x\n", label_name, (uint32_t)location);
+            
+            return SASM_ERROR_NOERROR; // Operation was successful
+        }
+        else if(strcmp(instruction, "glbl") == 0)
+        {
+            char *label_name = strtok(NULL, " ");
+            
+            if(label_name == NULL)
+                return SASM_ERROR_SYNTAXINVALID;
+                
+            // Create a new SASMLocationLabel
+            
+            long location = ftell(fp); // Get label location
+        
+            if(location == -1)
+                return SASM_ERROR_IOERROR;
+            
+            SASMLocationLabel *new = sasm_location_label_create(label_name, (uint32_t)location, true);
+            
+            if(!sasm_location_label_add(ll_root, new)) return SASM_ERROR_LABELERROR;
+            
+            // Output label location
+            printf("(global) %s %x\n", label_name, (uint32_t)location);
             
             return SASM_ERROR_NOERROR; // Operation was successful
         }

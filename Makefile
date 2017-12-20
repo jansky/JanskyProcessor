@@ -4,6 +4,7 @@ all:
 	$(MAKE) -C sasm all
 	$(MAKE) -C disassembler all
 	$(MAKE) -C memanalyze all
+	$(MAKE) -C linker all
 	$(MAKE) -C jos all
 
 clean:
@@ -12,6 +13,7 @@ clean:
 	$(MAKE) -C sasm clean
 	$(MAKE) -C disassembler clean
 	$(MAKE) -C memanalyze clean
+	$(MAKE) -C linker clean
 	$(MAKE) -C jos clean
 
 install:
@@ -19,4 +21,5 @@ install:
 	$(MAKE) -C sasm install
 	$(MAKE) -C disassembler install
 	$(MAKE) -C memanalyze install
+	$(MAKE) -C linker install
 

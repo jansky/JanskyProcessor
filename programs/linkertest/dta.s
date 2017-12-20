@@ -1,0 +1,21 @@
+raws .dta
+glbl title
+raws Memory Statistics
+rawb 0x0a
+rawb 0x0a
+rawb 0x00
+glbl byte
+rawb 0x20
+raws bytes
+rawb 0x0a
+rawb 0x00
+glbl kilo
+rawb 0x20
+raws kilobyte(s)
+rawb 0x0a
+rawb 0x00
+glbl mega
+rawb 0x20
+raws megabyte(s)
+rawb 0x0a
+rawb 0x00

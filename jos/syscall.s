@@ -1,7 +1,7 @@
 #include "jos.h"
 
 ; systemcall - performs the system call requested
-lbl systemcall
+glbl systemcall
 cmp r pr1 a 0x00
 jmprc eq l systemcall_test l systemcallend
 cmp r pr1 a 0x01
