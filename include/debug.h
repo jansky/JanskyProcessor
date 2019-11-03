@@ -3,6 +3,12 @@
 #include "cpu.h"
 #include "types.h"
 #include "error.h"
+#include "gc.h"
+
+#define DEBUG_SIGNAL_NOSIGNAL 0
+#define DEBUG_SIGNAL_CONTINUE 1
+#define DEBUG_SIGNAL_EXIT 2
+#define DEBUG_SIGNAL_ERROR 3
 
 typedef struct breakpoint
 {
@@ -22,6 +28,8 @@ uint32_t debug_breakpoint_get_max(breakpoint *root);
 
 bool debug_is_on_breakpoint(breakpoint *root, CPU *cpu);
 
-breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram);
+breakpoint *debug_do_interface(breakpoint *b_root, CPU *cpu, RAMUNIT *ram, FILE *memory_fp);
+
+int debug_do_line(breakpoint **b_root, CPU *cpu, RAMUNIT *ram, char *to_parse, FILE *memory_fp);
 
 void debug_do_regdump(CPU *cpu);

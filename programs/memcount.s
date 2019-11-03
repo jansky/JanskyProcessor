@@ -27,23 +27,24 @@ put r pr2 0x01
 cpy lo mega r ar1
 int 0x10
 hlt
+sec .dta
 raws .dta
-lbl title
+flbl title
 raws Memory Statistics
 rawb 0x0a
 rawb 0x0a
 rawb 0x00
-lbl byte
+flbl byte
 rawb 0x20
 raws bytes
 rawb 0x0a
 rawb 0x00
-lbl kilo
+flbl kilo
 rawb 0x20
 raws kilobyte(s)
 rawb 0x0a
 rawb 0x00
-lbl mega
+flbl mega
 rawb 0x20
 raws megabyte(s)
 rawb 0x0a

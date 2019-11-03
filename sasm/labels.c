@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location, bool global)
+SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location, char global)
 {
 
     SASMLocationLabel *new = malloc(sizeof(SASMLocationLabel));
@@ -29,6 +29,8 @@ SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location, boo
     new->global = global;
 
     new->location = location;
+
+    new->next = NULL;
     
     return new;
 }
@@ -138,6 +140,7 @@ SASMLocationToFill *sasm_location_to_fill_create(char *name, uint32_t location)
     {
         new->name = NULL;
     }
+    new->next = NULL;
     new->location = location;
     
     return new;

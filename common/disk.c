@@ -23,7 +23,7 @@ IOUNIT *iounit_create(FILE *s)
 
 	if(nunit->size == -1)
 		return NULL;
-
+}
 	
 
 int iounit_get_list_length(IOUNIT *root)

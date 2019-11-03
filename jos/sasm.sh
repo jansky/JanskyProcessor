@@ -13,7 +13,7 @@ if test "$?" -ne 0; then
     exit 1
 fi
 
-../sasm/jsasm "$sansextension".sp "$sansextension".o > "$sansextension".sp.lbls
+$SASM "$sansextension".sp "$sansextension".o > "$sansextension".sp.lbls
 
 exit "$?"
 

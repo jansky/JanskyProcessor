@@ -1,6 +1,9 @@
 #pragma once
+#define _POSIX_C_SOURCE 200809L
 #include "types.h"
 #include <stdbool.h>
+#include <stdio.h>
+
 
 typedef struct RAMUNIT
 {
@@ -21,6 +24,10 @@ void set_dword_at_ram_address(RAMUNIT *ram, uint32_t address, DWORD data);
 bool load_program_at_address(RAMUNIT *ram, uint32_t address, char *filename);
 
 bool write_ram_contents_to_file(RAMUNIT *ram, char *filename);
+
+FILE *open_ramunit_for_reading(RAMUNIT *ram);
+
+
 
 /*
  * WARNING

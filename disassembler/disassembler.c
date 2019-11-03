@@ -320,8 +320,7 @@ void output_location_info(FILE *ip, FILE *op)
 			break;
 		default:
 		{
-			printf("\nError near position 0x%lx: Register ID 0x%x invalid.\n", ftell(ip), location);
-			//exit(5);
+			return;
 		}
 		}
 		break;

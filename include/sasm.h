@@ -25,7 +25,7 @@ typedef struct SASMLocationLabel
     char *name;
     uint32_t location;
 
-    bool global;
+    char global;
     
     struct SASMLocationLabel *next;
 } SASMLocationLabel;
@@ -38,9 +38,27 @@ typedef struct SASMLocationToFill
     struct SASMLocationToFill *next;
 } SASMLocationToFill;
 
+typedef struct SASMSection
+{
+    char *name;
+
+    SASMLocationLabel *l_root;
+
+    SASMLocationToFill *ltf_root;
+
+    char *code_contents;
+    size_t code_contents_size;
+
+    FILE *code_contents_fp;
+
+    bool closed;
+
+    struct SASMSection *next;
+} SASMSection;
+
 /* Location Label Functions */
 
-SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location, bool global);
+SASMLocationLabel *sasm_location_label_create(char *name, uint32_t location, char global);
 int sasm_location_label_get_max(SASMLocationLabel *root);
 SASMLocationLabel *sasm_location_label_get(SASMLocationLabel *root, int id);
 bool sasm_location_label_add(SASMLocationLabel *root, SASMLocationLabel *new);
@@ -50,6 +68,12 @@ SASMLocationToFill *sasm_location_to_fill_create(char *name, uint32_t location);
 int sasm_location_to_fill_get_max(SASMLocationToFill *root);
 SASMLocationToFill *sasm_location_to_fill_get(SASMLocationToFill *root, int id);
 bool sasm_location_to_fill_add(SASMLocationToFill *root, SASMLocationToFill *new);
+
+SASMSection *sasm_section_create(char *name);
+
+int sasm_section_add(SASMSection *s_root, SASMSection *s_new);
+
+SASMSection *sasm_section_get_last_section(SASMSection *s_root);
 
 int sasm_fill_in_labels(FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill *ltf_root);
 
@@ -71,12 +95,12 @@ int sasm_write_dword(FILE *fp, uint32_t dword);
 
 int sasm_write_string(FILE *fp, char *string);
 
-int sasm_write_object_file(FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill *ltf_root, char *code, size_t code_length);
+int sasm_write_object_file(FILE *fp, SASMSection *s_root);
 
 int sasm_write_get_location(FILE *fp, char *loctype, char *locarg, SASMLocationToFill *root);
 int sasm_write_put_location(FILE *fp, char *loctype, char *locarg, SASMLocationToFill *root);
 
-int sasm_assemble_line(char *line, FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill *ltf_root);
+int sasm_assemble_line(char *line, SASMSection *s_root);
 
 uint32_t get_register_id_from_string(char *reg);
 

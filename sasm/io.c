@@ -56,16 +56,25 @@ int sasm_write_string(FILE *fp, char *string)
     return fwrite(string, sizeof(char), strlen(string), fp); // Not null terminated
 }
 
-int sasm_write_object_file(FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill *ltf_root, char *code, size_t code_length)
+int sasm_write_object_file(FILE *fp, SASMSection *s_root)
 {
     if(fp == NULL)
         return SASM_ERROR_IOERROR;
     
-    if(ll_root == NULL || ltf_root == NULL)
-        return SASM_ERROR_LABELERROR;
+    if(s_root == NULL)
+        return SASM_ERROR_UNKNOWNERROR;
+
+    /* Close the last section if it hasn't already been closed */
+
+    SASMSection *s_last = sasm_section_get_last_section(s_root);
+
+    if(s_last == NULL)
+        return SASM_ERROR_UNKNOWNERROR;
     
-    if(code == NULL)
-        return SASM_ERROR_STRINGERROR;
+    if(!s_last->closed)
+    {
+        fclose(s_last->code_contents_fp);
+    }
     
     /* Write the magic number */
     /* SACO = 4F 43 41 53 (little endian) */
@@ -73,87 +82,135 @@ int sasm_write_object_file(FILE *fp, SASMLocationLabel *ll_root, SASMLocationToF
     if(sasm_write_dword(fp, 0x4F434153) != 1)
         return SASM_ERROR_IOERROR;
     
-    /* Labels
+    /* Write the number of sections */
+    /* Since we don't know that right now (there could be a failure) we'll write a placeholder and return at the end. */
 
-       Section Format:
+    long num_sections_location = ftell(fp);
 
-       uint32_t                 Number of Labels
-       SASMLocationLabel        ...
-
-    */
-
-    uint32_t label_count = 0;
-
-    SASMLocationLabel *l_next = ll_root;
-
-    while(l_next != NULL)
-    {
-        if(l_next->name != NULL)
-            label_count++;
-        
-        l_next = l_next->next;
-    }
-
-    if(sasm_write_dword(fp, label_count) != 1)
-        return SASM_ERROR_IOERROR;
+    if(sasm_write_dword(fp, 0x0) != 1)
+        return SASM_ERROR_NOERROR;
     
-    l_next = ll_root;
+    /* Begin to write each section */
 
-    while(l_next != NULL)
+    uint32_t section_count = 0;
+
+    SASMSection *s_next = s_root;
+
+    while(s_next != NULL)
     {
-        if(l_next->name != NULL)
-        {
-            int error = sasm_location_label_serialize(fp, l_next);
+        /* Section Serialization Format
 
-            if(error != SASM_ERROR_NOERROR)
-                return error;
+           uint8_t              Name Length
+           char*                Name
+           uint32_t             Number of Labels
+           SASMLocationLabel    Labels
+           uint32_t             Number of Locations-to-Fill
+           SASMLocationToFill   Locations-to-Fill
+           uint32_t             Length of Code Section in Bytes
+           char*                Code
+        */
+
+        if(s_next->name == NULL)
+            return SASM_ERROR_STRINGERROR;
+        
+        uint8_t name_length = (uint8_t)strlen(s_next->name);
+
+        if(sasm_write_byte(fp, name_length) != 1)
+            return SASM_ERROR_IOERROR;
+        
+        if(fwrite(s_next->name, sizeof(char), name_length, fp) != name_length)
+            return SASM_ERROR_IOERROR;
+        
+        /* We'll do the same placeholder thing for the number of labels and locations-to-fill */
+
+        long num_labels_location = ftell(fp);
+
+        uint32_t label_count = 0;
+
+        if(sasm_write_dword(fp, 0x0) != 1)
+            return SASM_ERROR_IOERROR;
+        
+        SASMLocationLabel *l_next = s_next->l_root;
+
+        while(l_next != NULL)
+        {
+            if(l_next->name != NULL)
+            {
+                int error = sasm_location_label_serialize(fp, l_next);
+
+                if(error != SASM_ERROR_NOERROR)
+                    return error;
+                
+                label_count++;
+            }
+
+            l_next = l_next->next;
         }
 
-        l_next = l_next->next;
-    }
+        long num_locations_to_fill_location = ftell(fp);
 
-    /* Locations-To-Fill
+        uint32_t location_to_fill_count = 0;
 
-    Section Format:
-
-       uint32_t                 Number of Locations-to-Fill
-       SASMLocationToFill       ...
-
-    */
-
-    uint32_t ltf_count = 0;
-
-    SASMLocationToFill *ltf_next = ltf_root;
-
-    while(ltf_next != NULL)
-    {
-        if(ltf_next->name != NULL)
-            ltf_count++;
+        if(sasm_write_dword(fp, 0x0) != 1)
+            return SASM_ERROR_IOERROR;
         
-        ltf_next = ltf_next->next;
-    }
+        SASMLocationToFill *ltf_next = s_next->ltf_root;
 
-    if(sasm_write_dword(fp, ltf_count) != 1)
-        return SASM_ERROR_IOERROR;
-    
-    ltf_next = ltf_root;
-
-    while(ltf_next != NULL)
-    {
-        if(ltf_next->name != NULL)
+        while(ltf_next != NULL)
         {
-            int error = sasm_location_to_fill_serialize(fp, ltf_next);
+            if(ltf_next->name != NULL)
+            {
+                int error = sasm_location_to_fill_serialize(fp, ltf_next);
 
-            if(error != SASM_ERROR_NOERROR)
-                return error;
+                if(error != SASM_ERROR_NOERROR)
+                    return error;
+                
+                location_to_fill_count++;
+            }
+
+            ltf_next = ltf_next->next;
         }
 
-        ltf_next = ltf_next->next;
+        /* Write the compiled code */
+
+        if(sasm_write_dword(fp, (uint32_t)s_next->code_contents_size) != 1)
+            return SASM_ERROR_IOERROR;
+
+        if(fwrite(s_next->code_contents, sizeof(char), s_next->code_contents_size, fp) != s_next->code_contents_size)
+            return SASM_ERROR_IOERROR;
+        
+        /* Fill in the number of labels and locations-to-fill */
+
+        long end_location = ftell(fp);
+
+        if(fseek(fp, num_labels_location, SEEK_SET) != 0)
+            return SASM_ERROR_IOERROR;
+        
+        if(sasm_write_dword(fp, label_count) != 1)
+            return SASM_ERROR_IOERROR;
+        
+        if(fseek(fp, num_locations_to_fill_location, SEEK_SET) != 0)
+            return SASM_ERROR_IOERROR;
+        
+        if(sasm_write_dword(fp, location_to_fill_count) != 1)
+            return SASM_ERROR_IOERROR;
+        
+        /* And return to the end of the file */
+
+        if(fseek(fp, end_location, SEEK_SET) != 0)
+            return SASM_ERROR_IOERROR;
+        
+        section_count++;
+
+        s_next = s_next->next;
     }
 
-    /* Compiled Code */
+    /* Write the section count */
 
-    if(fwrite(code, sizeof(char), code_length, fp) != code_length)
+    if(fseek(fp, num_sections_location, SEEK_SET) != 0)
+        return SASM_ERROR_IOERROR;
+    
+    if(sasm_write_dword(fp, section_count) != 1)
         return SASM_ERROR_IOERROR;
     
     return SASM_ERROR_NOERROR;

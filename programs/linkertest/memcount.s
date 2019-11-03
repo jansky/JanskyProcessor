@@ -27,4 +27,10 @@ put r pr2 0x01
 cpy lo mega r ar1
 int 0x10
 hlt
+sec .dta
+flbl title
+raws Memory Statistics
+rawb 0x0a
+rawb 0x0a
+rawb 0x00
 

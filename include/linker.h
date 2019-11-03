@@ -24,6 +24,8 @@ typedef struct LinkerLocationLabel
 	uint32_t location;
 
 	int section_id;
+
+	char global;
 	
 	struct LinkerLocationLabel *next;
 } LinkerLocationLabel;
@@ -39,8 +41,12 @@ typedef struct LinkerLocationToFill
 typedef struct LinkerSection
 {
 	char *name;
+	char *type;
 
 	FILE *fp;
+
+	long code_begin_location;
+	uint32_t code_section_length;
 
 	LinkerLocationLabel *l_root;
 
@@ -51,7 +57,7 @@ typedef struct LinkerSection
 	struct LinkerSection *next;
 } LinkerSection;
 
-LinkerLocationLabel *linker_location_label_create(char *name, uint32_t location, int section_id);
+LinkerLocationLabel *linker_location_label_create(char *name, uint32_t location, int section_id, char global);
 
 size_t linker_location_label_max(LinkerLocationLabel *l_root);
 
@@ -67,21 +73,35 @@ int linker_location_to_fill_add(LinkerLocationToFill *ltf_root, LinkerLocationTo
 
 LinkerLocationToFill *linker_locations_to_fill_deserialize(FILE *fp);
 
-LinkerSection *linker_section_create(char *name, FILE *fp, LinkerLocationLabel *l_root, LinkerLocationToFill *ltf_root);
+LinkerSection *linker_section_create(char *name, char *type, FILE *fp, long code_begin_location, uint32_t code_section_length, LinkerLocationLabel *l_root, LinkerLocationToFill *ltf_root);
 
 int linker_section_add(LinkerSection *s_root, LinkerSection *s_new);
 
-LinkerSection *linker_section_get_by_id(LinkerSection *s_root, size_t id);
+int linker_section_get_count(LinkerSection *s_root);
 
-LinkerSection *linker_section_create_from_file(char *name, int section_id, LinkerLocationLabel *global_root);
+LinkerSection *linker_section_get_by_id(LinkerSection *s_root, int id);
 
-int linker_read_code_from_file(FILE *input, FILE *output);
+bool linker_section_id_in_array(int *section_order, int num_sections_to_write, int id);
 
-int linker_write_first_pass(LinkerSection *s_root, FILE *output_fp);
+char *linker_get_filename_from_fullname(char *fullname);
 
-int linker_write_second_pass(LinkerSection *s_root, FILE *output_fp, LinkerLocationLabel *global_root);
+int *linker_section_get_file_global_sections(LinkerSection *s_root, char *fullname, int *num_file_global_sections);
+
+int linker_read_sections_from_file(char *filename, LinkerSection *s_root, LinkerLocationLabel *global_root);
+
+int *linker_get_section_write_order(LinkerSection *s_root, char **types, int num_types, int *num_sections_to_write);
+
+int linker_read_code_from_file(FILE *input, FILE *output, long code_location, uint32_t code_length);
+
+int linker_write_first_pass(LinkerSection *s_root, int *section_order, int num_sections_to_write, FILE *output_fp);
+
+int linker_write_second_pass(LinkerSection *s_root, FILE *output_fp, LinkerLocationLabel *global_root, int *section_order, int num_sections_to_write);
+
+int char_occurence_count(char *str, char c);
 
 void linker_fatal_error();
+
+
 
 
 

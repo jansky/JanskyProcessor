@@ -65,16 +65,13 @@ int sasm_write_two_locations(FILE *fp, SASMLocationToFill *ltf_root, bool locati
     return SASM_ERROR_NOERROR;
 }
 
-int sasm_assemble_line(char *line, FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill *ltf_root)
+/*int sasm_assemble_line(char *line, FILE *fp, SASMLocationLabel *ll_root, SASMLocationToFill *ltf_root)*/
+int sasm_assemble_line(char *line, SASMSection *s_root)
 {
     // Perform some checks to ensure everything is okay
     
     if(line == NULL)
         return SASM_ERROR_STRINGERROR;
-    if(fp == NULL)
-        return SASM_ERROR_IOERROR;
-    if(ll_root == NULL || ltf_root == NULL)
-        return SASM_ERROR_LABELERROR;
 
     // Check if line is a comment
     
@@ -83,7 +80,21 @@ int sasm_assemble_line(char *line, FILE *fp, SASMLocationLabel *ll_root, SASMLoc
     
     if(line[0] == ';')
         return SASM_ERROR_NOERROR; // We're done parsing this line
-        
+
+    /* Set up the environment from the current section, which is always the last section in the list. */
+
+    SASMSection *s_current = sasm_section_get_last_section(s_root);
+
+    if(s_current == NULL)
+        return SASM_ERROR_UNKNOWNERROR;
+    
+    if(s_current->code_contents_fp == NULL || s_current->l_root == NULL || s_current->ltf_root == NULL)
+        return SASM_ERROR_UNKNOWNERROR;
+    
+    FILE *fp = s_current->code_contents_fp;
+    SASMLocationLabel *ll_root = s_current->l_root;
+    SASMLocationToFill *ltf_root = s_current->ltf_root;
+
     // Check for instructions with no arguments
     
     if(strcmp(line, "hlt") == 0)
@@ -314,6 +325,31 @@ int sasm_assemble_line(char *line, FILE *fp, SASMLocationLabel *ll_root, SASMLoc
             return sasm_write_two_locations(fp, ltf_root, true, true);
         }
         // Now for some assembler helper functions
+        else if(strcmp(instruction, "sec") == 0)
+        {
+            char *section_name = strtok(NULL, " ");
+
+            if(section_name == NULL)
+                return SASM_ERROR_SYNTAXINVALID;
+            
+            /* Close the current section */
+
+            fclose(s_current->code_contents_fp);
+
+            s_current->closed = true;
+
+            /* Start a new section */
+
+            SASMSection *s_new = sasm_section_create(section_name);
+
+            if(s_new == NULL)
+                return SASM_ERROR_UNKNOWNERROR;
+            
+            if(sasm_section_add(s_root, s_new) != SASM_ERROR_NOERROR)
+                return SASM_ERROR_UNKNOWNERROR;
+            
+            return SASM_ERROR_NOERROR; // Operation was successful
+        }
         else if(strcmp(instruction, "lbl") == 0)
         {
             char *label_name = strtok(NULL, " ");
@@ -328,12 +364,12 @@ int sasm_assemble_line(char *line, FILE *fp, SASMLocationLabel *ll_root, SASMLoc
             if(location == -1)
                 return SASM_ERROR_IOERROR;
             
-            SASMLocationLabel *new = sasm_location_label_create(label_name, (uint32_t)location, false);
+            SASMLocationLabel *new = sasm_location_label_create(label_name, (uint32_t)location, 0);
             
             if(!sasm_location_label_add(ll_root, new)) return SASM_ERROR_LABELERROR;
             
             // Output label location
-            printf("%s %x\n", label_name, (uint32_t)location);
+            printf("%s: %s %x\n", s_current->name, label_name, (uint32_t)location);
             
             return SASM_ERROR_NOERROR; // Operation was successful
         }
@@ -351,12 +387,35 @@ int sasm_assemble_line(char *line, FILE *fp, SASMLocationLabel *ll_root, SASMLoc
             if(location == -1)
                 return SASM_ERROR_IOERROR;
             
-            SASMLocationLabel *new = sasm_location_label_create(label_name, (uint32_t)location, true);
+            SASMLocationLabel *new = sasm_location_label_create(label_name, (uint32_t)location, 1);
             
             if(!sasm_location_label_add(ll_root, new)) return SASM_ERROR_LABELERROR;
             
             // Output label location
-            printf("(global) %s %x\n", label_name, (uint32_t)location);
+            printf("(global) %s: %s %x\n", s_current->name, label_name, (uint32_t)location);
+            
+            return SASM_ERROR_NOERROR; // Operation was successful
+        }
+        else if(strcmp(instruction, "flbl") == 0)
+        {
+            char *label_name = strtok(NULL, " ");
+            
+            if(label_name == NULL)
+                return SASM_ERROR_SYNTAXINVALID;
+                
+            // Create a new SASMLocationLabel
+            
+            long location = ftell(fp); // Get label location
+        
+            if(location == -1)
+                return SASM_ERROR_IOERROR;
+            
+            SASMLocationLabel *new = sasm_location_label_create(label_name, (uint32_t)location, 2);
+            
+            if(!sasm_location_label_add(ll_root, new)) return SASM_ERROR_LABELERROR;
+            
+            // Output label location
+            printf("(file global) %s: %s %x\n", s_current->name, label_name, (uint32_t)location);
             
             return SASM_ERROR_NOERROR; // Operation was successful
         }

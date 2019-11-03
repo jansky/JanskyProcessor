@@ -172,6 +172,7 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 	CPU *cpu = cpu_init();
 	CPURESULT *result;
 	INTEROP_INFO *iinfo;
+	FILE *memory_fp = NULL;
 
 	breakpoint *b_root = NULL;
 		
@@ -253,7 +254,18 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 
 	//if debug is enabled, allow the user a chance to set breakpoints and do other things
 	if(debug)
-		b_root = debug_do_interface(b_root, cpu, ram);
+	{
+		if(memory_fp == NULL)
+			memory_fp = open_ramunit_for_reading(ram);
+
+        b_root = debug_breakpoint_create(0, 0, false);
+
+		b_root = debug_do_interface(b_root, cpu, ram, memory_fp);
+
+		fclose(memory_fp);
+		memory_fp = NULL;
+	}
+		
 
 	
 
@@ -274,7 +286,13 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 			//printf("\nbreakpoint possible\n");
 			if(debug_is_on_breakpoint(b_root, cpu))
 			{
-				b_root = debug_do_interface(b_root, cpu, ram);
+				if(memory_fp == NULL)
+					memory_fp = open_ramunit_for_reading(ram);
+				
+				b_root = debug_do_interface(b_root, cpu, ram, memory_fp);
+
+				fclose(memory_fp);
+				memory_fp = NULL;
 			}
 		}
 		
@@ -288,7 +306,10 @@ void run_emulator(uint32_t memsize, uint32_t stacksize, uint32_t loadat, char *p
 				if(debug)
 				{
 					printf("Last Intruction: %x\tResult: %x\n\n", result->instruction, result->error);
-					b_root = debug_do_interface(b_root, cpu, ram);
+					b_root = debug_do_interface(b_root, cpu, ram, memory_fp);
+
+					fclose(memory_fp);
+					memory_fp = NULL;
 				}
 				else
 				{

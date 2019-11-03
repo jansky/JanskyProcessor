@@ -1,6 +1,8 @@
+#define _POSIX_C_SOURCE 200809L
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "memory.h"
 #include "error.h"
 
@@ -218,6 +220,17 @@ bool write_ram_contents_to_file(RAMUNIT *ram, char *filename)
 	fclose(fp);
 	
 	return true;
+}
+
+FILE *open_ramunit_for_reading(RAMUNIT *ram)
+{
+	if(ram == NULL)
+	{
+		emu_error = EMUERR_NULLERROR;
+		return NULL;
+	}
+
+	return fmemopen(ram->data, (size_t)ram->bytesize, "r+b");
 }
 	
 	

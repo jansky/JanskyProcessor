@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-LinkerLocationLabel *linker_location_label_create(char *name, uint32_t location, int section_id)
+LinkerLocationLabel *linker_location_label_create(char *name, uint32_t location, int section_id, char global)
 {
     LinkerLocationLabel *label = malloc(sizeof(LinkerLocationLabel));
 
@@ -23,6 +23,7 @@ LinkerLocationLabel *linker_location_label_create(char *name, uint32_t location,
     label->location = location;
     label->section_id = section_id;
     label->next = NULL;
+    label->global = global;
 
     return label;
 }
@@ -57,8 +58,10 @@ int linker_location_label_add(LinkerLocationLabel *l_root, LinkerLocationLabel *
             next->next = l_new;
             break;
         }
-        
-        next = next->next;
+        else
+        {        
+            next = next->next;
+        }
         
     }
 
@@ -138,7 +141,7 @@ LinkerLocationLabel *linker_location_labels_deserialize(FILE *fp, int section_id
     if(fp == NULL || global_root == NULL)
         return NULL;
     
-    LinkerLocationLabel *l_root = linker_location_label_create(NULL, 0, -1);
+    LinkerLocationLabel *l_root = linker_location_label_create(NULL, 0, -1, 0);
 
     if(l_root == NULL)
         return NULL;
@@ -170,7 +173,7 @@ LinkerLocationLabel *linker_location_labels_deserialize(FILE *fp, int section_id
         if(fread(&location, sizeof(uint32_t), 1, fp) != 1)
             return NULL;
         
-        LinkerLocationLabel *l_new = linker_location_label_create(strdup(label_name), location, section_id);
+        LinkerLocationLabel *l_new = linker_location_label_create(strdup(label_name), location, section_id, global);
 
         if(l_new == NULL)
             return NULL;
