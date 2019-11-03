@@ -1,4 +1,4 @@
-#JanskyProcessor
+# JanskyProcessor
 
 JanskyProcessor is a byte code interpreter for a simple register machine and associated software.
 Byte code programs can interact with the terminal and perform simple disk operations. I have been
